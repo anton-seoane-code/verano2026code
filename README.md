@@ -1,6 +1,6 @@
 # Report
 ## 08/06
 ### Projects: 
-[*] To-Do List
-[*] Python Gibraltarian Bot
+[x] To-Do List
+[x] Python Gibraltarian Bot
 
