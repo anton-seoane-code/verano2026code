@@ -1,4 +1,7 @@
 # Report
+## 15/06
+### Projects: 
+- [x] Python Snake Game
 ## 08/06
 ### Projects: 
 - [x] To-Do List
