@@ -1,0 +1,47 @@
+{
+  "/home/ars/verano2026code/.opencode/opencode.json": {
+    "mtime": 1781777049.2696943,
+    "ast_hash": "e5f74d14a81702b55bdf53b33ec991d7",
+    "semantic_hash": "e5f74d14a81702b55bdf53b33ec991d7"
+  },
+  "/home/ars/verano2026code/.opencode/package.json": {
+    "mtime": 1781777058.7055576,
+    "ast_hash": "3c9679bfc33f414fac06b8b4daf71a35",
+    "semantic_hash": "3c9679bfc33f414fac06b8b4daf71a35"
+  },
+  "/home/ars/verano2026code/.opencode/plugins/graphify.js": {
+    "mtime": 1781777041.7053263,
+    "ast_hash": "64ccd3c03dbfe0980b6095766f5c4e52",
+    "semantic_hash": "64ccd3c03dbfe0980b6095766f5c4e52"
+  },
+  "/home/ars/verano2026code/pythonbot/bot.py": {
+    "mtime": 1781605399.5661268,
+    "ast_hash": "45c7b090748b4e361465d894beb62a0f",
+    "semantic_hash": "45c7b090748b4e361465d894beb62a0f"
+  },
+  "/home/ars/verano2026code/snakegame/snake.py": {
+    "mtime": 1781605399.5661268,
+    "ast_hash": "88a74581d86288e132bbc7b8bfa777f7",
+    "semantic_hash": "88a74581d86288e132bbc7b8bfa777f7"
+  },
+  "/home/ars/verano2026code/todolist/script.js": {
+    "mtime": 1781605399.5661268,
+    "ast_hash": "b79904b8e160c1deab5dbdacdf902f1b",
+    "semantic_hash": "b79904b8e160c1deab5dbdacdf902f1b"
+  },
+  "/home/ars/verano2026code/README.md": {
+    "mtime": 1781605634.910303,
+    "ast_hash": "d16439f931c4805eb7c1dee4da16efa9",
+    "semantic_hash": "d16439f931c4805eb7c1dee4da16efa9"
+  },
+  "/home/ars/verano2026code/pythonbot/news.html": {
+    "mtime": 1781605399.5661268,
+    "ast_hash": "172183cdee9e3ee101919d4c7cbce9d4",
+    "semantic_hash": "172183cdee9e3ee101919d4c7cbce9d4"
+  },
+  "/home/ars/verano2026code/todolist/index.html": {
+    "mtime": 1781605399.5661268,
+    "ast_hash": "6d417a3691f43bf688e4d69f713d638c",
+    "semantic_hash": "6d417a3691f43bf688e4d69f713d638c"
+  }
+}

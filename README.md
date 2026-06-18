@@ -1,4 +1,7 @@
 # Report
+## 18/06
+### Projects:
+- [x] Installed Graphify on OpenCode
 ## 16/06
 ### Projects: 
 - [x] Opencode and Hermes installed on Hyper-V

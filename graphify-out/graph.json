@@ -1,0 +1,1271 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {
+    "hyperedges": [
+      {
+        "id": "todolist_swipe_interaction",
+        "label": "Swipe-to-Delete Interaction System",
+        "nodes": [
+          "todolist_script_handletouchstart",
+          "todolist_script_handletouchmove",
+          "todolist_script_handletouchend",
+          "todolist_script_closeotherswipes"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "todolist/script.js"
+      },
+      {
+        "id": "pythonbot_rss_pipeline",
+        "label": "RSS-to-HTML News Pipeline",
+        "nodes": [
+          "pythonbot_bot_fetch_rss",
+          "pythonbot_bot_parse_rss",
+          "pythonbot_bot_generate_html",
+          "pythonbot_bot_card",
+          "pythonbot_bot_main"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "pythonbot/bot.py"
+      },
+      {
+        "id": "todolist_data_lifecycle",
+        "label": "Task CRUD Data Lifecycle",
+        "nodes": [
+          "todolist_script_loadtasks",
+          "todolist_script_savetasks",
+          "todolist_script_addtask",
+          "todolist_script_deletetask",
+          "todolist_script_toggletask",
+          "todolist_script_render"
+        ],
+        "relation": "participate_in",
+        "confidence": "EXTRACTED",
+        "confidence_score": 1.0,
+        "source_file": "todolist/script.js"
+      }
+    ]
+  },
+  "nodes": [
+    {
+      "label": "opencode.json",
+      "file_type": "code",
+      "source_file": ".opencode/opencode.json",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "opencode_opencode",
+      "community": 3,
+      "norm_label": "opencode.json"
+    },
+    {
+      "label": "$schema",
+      "file_type": "code",
+      "source_file": ".opencode/opencode.json",
+      "source_location": "L2",
+      "_origin": "ast",
+      "id": "opencode_opencode_schema",
+      "community": 3,
+      "norm_label": "$schema"
+    },
+    {
+      "label": "plugin",
+      "file_type": "code",
+      "source_file": ".opencode/opencode.json",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "opencode_opencode_plugin",
+      "community": 3,
+      "norm_label": "plugin"
+    },
+    {
+      "label": "package.json",
+      "file_type": "code",
+      "source_file": ".opencode/package.json",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "opencode_package",
+      "community": 5,
+      "norm_label": "package.json"
+    },
+    {
+      "label": "dependencies",
+      "file_type": "code",
+      "source_file": ".opencode/package.json",
+      "source_location": "L2",
+      "_origin": "ast",
+      "id": "opencode_package_dependencies",
+      "community": 5,
+      "norm_label": "dependencies"
+    },
+    {
+      "label": "@opencode-ai/plugin",
+      "file_type": "code",
+      "source_file": ".opencode/package.json",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "opencode_package_dependencies_opencode_ai_plugin",
+      "community": 5,
+      "norm_label": "@opencode-ai/plugin"
+    },
+    {
+      "label": "graphify.js",
+      "file_type": "code",
+      "source_file": ".opencode/plugins/graphify.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "plugins_graphify",
+      "community": 3,
+      "norm_label": "graphify.js"
+    },
+    {
+      "label": "GraphifyPlugin()",
+      "file_type": "code",
+      "source_file": ".opencode/plugins/graphify.js",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "plugins_graphify_graphifyplugin",
+      "community": 3,
+      "norm_label": "graphifyplugin()"
+    },
+    {
+      "label": "bot.py",
+      "file_type": "code",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "pythonbot_bot",
+      "community": 1,
+      "norm_label": "bot.py"
+    },
+    {
+      "label": "fetch_rss()",
+      "file_type": "code",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "pythonbot_bot_fetch_rss",
+      "community": 1,
+      "norm_label": "fetch_rss()"
+    },
+    {
+      "label": "parse_rss()",
+      "file_type": "code",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "pythonbot_bot_parse_rss",
+      "community": 1,
+      "norm_label": "parse_rss()"
+    },
+    {
+      "label": "generate_html()",
+      "file_type": "code",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "L61",
+      "_origin": "ast",
+      "id": "pythonbot_bot_generate_html",
+      "community": 1,
+      "norm_label": "generate_html()"
+    },
+    {
+      "label": "_card()",
+      "file_type": "code",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "L127",
+      "_origin": "ast",
+      "id": "pythonbot_bot_card",
+      "community": 1,
+      "norm_label": "_card()"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "L142",
+      "_origin": "ast",
+      "id": "pythonbot_bot_main",
+      "community": 1,
+      "norm_label": "main()"
+    },
+    {
+      "label": "snake.py",
+      "file_type": "code",
+      "source_file": "snakegame/snake.py",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "snakegame_snake",
+      "community": 1,
+      "norm_label": "snake.py"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "snakegame/snake.py",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "snakegame_snake_main",
+      "community": 1,
+      "norm_label": "main()"
+    },
+    {
+      "label": "script.js",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "todolist_script",
+      "community": 0,
+      "norm_label": "script.js"
+    },
+    {
+      "label": "tasks",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "todolist_script_tasks",
+      "community": 0,
+      "norm_label": "tasks"
+    },
+    {
+      "label": "taskList",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "todolist_script_tasklist",
+      "community": 0,
+      "norm_label": "tasklist"
+    },
+    {
+      "label": "taskInput",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "todolist_script_taskinput",
+      "community": 0,
+      "norm_label": "taskinput"
+    },
+    {
+      "label": "addBtn",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L9",
+      "_origin": "ast",
+      "id": "todolist_script_addbtn",
+      "community": 0,
+      "norm_label": "addbtn"
+    },
+    {
+      "label": "emptyState",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "todolist_script_emptystate",
+      "community": 0,
+      "norm_label": "emptystate"
+    },
+    {
+      "label": "taskCount",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "todolist_script_taskcount",
+      "community": 0,
+      "norm_label": "taskcount"
+    },
+    {
+      "label": "emptyTitle",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "todolist_script_emptytitle",
+      "community": 0,
+      "norm_label": "emptytitle"
+    },
+    {
+      "label": "emptySubtitle",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "todolist_script_emptysubtitle",
+      "community": 0,
+      "norm_label": "emptysubtitle"
+    },
+    {
+      "label": "segments",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "todolist_script_segments",
+      "community": 0,
+      "norm_label": "segments"
+    },
+    {
+      "label": "dateEl",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L15",
+      "_origin": "ast",
+      "id": "todolist_script_dateel",
+      "community": 0,
+      "norm_label": "dateel"
+    },
+    {
+      "label": "swipeState",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L17",
+      "_origin": "ast",
+      "id": "todolist_script_swipestate",
+      "community": 0,
+      "norm_label": "swipestate"
+    },
+    {
+      "label": "loadTasks()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "todolist_script_loadtasks",
+      "community": 4,
+      "norm_label": "loadtasks()"
+    },
+    {
+      "label": "saveTasks()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "todolist_script_savetasks",
+      "community": 2,
+      "norm_label": "savetasks()"
+    },
+    {
+      "label": "generateId()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "todolist_script_generateid",
+      "community": 2,
+      "norm_label": "generateid()"
+    },
+    {
+      "label": "getFilteredTasks()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L35",
+      "_origin": "ast",
+      "id": "todolist_script_getfilteredtasks",
+      "community": 2,
+      "norm_label": "getfilteredtasks()"
+    },
+    {
+      "label": "escapeHtml()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L43",
+      "_origin": "ast",
+      "id": "todolist_script_escapehtml",
+      "community": 2,
+      "norm_label": "escapehtml()"
+    },
+    {
+      "label": "render()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L49",
+      "_origin": "ast",
+      "id": "todolist_script_render",
+      "community": 2,
+      "norm_label": "render()"
+    },
+    {
+      "label": "addTask()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L91",
+      "_origin": "ast",
+      "id": "todolist_script_addtask",
+      "community": 2,
+      "norm_label": "addtask()"
+    },
+    {
+      "label": "toggleTask()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L117",
+      "_origin": "ast",
+      "id": "todolist_script_toggletask",
+      "community": 2,
+      "norm_label": "toggletask()"
+    },
+    {
+      "label": "deleteTask()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L125",
+      "_origin": "ast",
+      "id": "todolist_script_deletetask",
+      "community": 2,
+      "norm_label": "deletetask()"
+    },
+    {
+      "label": "closeOtherSwipes()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L132",
+      "_origin": "ast",
+      "id": "todolist_script_closeotherswipes",
+      "community": 6,
+      "norm_label": "closeotherswipes()"
+    },
+    {
+      "label": "handleTouchStart()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L138",
+      "_origin": "ast",
+      "id": "todolist_script_handletouchstart",
+      "community": 6,
+      "norm_label": "handletouchstart()"
+    },
+    {
+      "label": "handleTouchMove()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L153",
+      "_origin": "ast",
+      "id": "todolist_script_handletouchmove",
+      "community": 0,
+      "norm_label": "handletouchmove()"
+    },
+    {
+      "label": "handleTouchEnd()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L179",
+      "_origin": "ast",
+      "id": "todolist_script_handletouchend",
+      "community": 0,
+      "norm_label": "handletouchend()"
+    },
+    {
+      "label": "handleTaskClick()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L200",
+      "_origin": "ast",
+      "id": "todolist_script_handletaskclick",
+      "community": 2,
+      "norm_label": "handletaskclick()"
+    },
+    {
+      "label": "handleDeleteClick()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L222",
+      "_origin": "ast",
+      "id": "todolist_script_handledeleteclick",
+      "community": 2,
+      "norm_label": "handledeleteclick()"
+    },
+    {
+      "label": "updateDate()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L235",
+      "_origin": "ast",
+      "id": "todolist_script_updatedate",
+      "community": 4,
+      "norm_label": "updatedate()"
+    },
+    {
+      "label": "init()",
+      "file_type": "code",
+      "source_file": "todolist/script.js",
+      "source_location": "L245",
+      "_origin": "ast",
+      "id": "todolist_script_init",
+      "community": 4,
+      "norm_label": "init()"
+    },
+    {
+      "label": "Gibraltar Culture News HTML",
+      "file_type": "code",
+      "source_file": "pythonbot/news.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "pythonbot_news",
+      "community": 1,
+      "norm_label": "gibraltar culture news html"
+    },
+    {
+      "label": "Verano 2026 Project Log",
+      "file_type": "document",
+      "source_file": "README.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "readme",
+      "community": 1,
+      "norm_label": "verano 2026 project log"
+    },
+    {
+      "label": "Todo List HTML Page",
+      "file_type": "code",
+      "source_file": "todolist/index.html",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null,
+      "id": "todolist_index",
+      "community": 4,
+      "norm_label": "todo list html page"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".opencode/opencode.json",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "opencode_opencode",
+      "target": "opencode_opencode_plugin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".opencode/opencode.json",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "opencode_opencode",
+      "target": "opencode_opencode_schema",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": ".opencode/opencode.json",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "opencode_opencode",
+      "target": "plugins_graphify_graphifyplugin"
+    },
+    {
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "readme",
+      "target": "opencode_opencode"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".opencode/package.json",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "opencode_package",
+      "target": "opencode_package_dependencies",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".opencode/package.json",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "opencode_package_dependencies",
+      "target": "opencode_package_dependencies_opencode_ai_plugin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": ".opencode/plugins/graphify.js",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "plugins_graphify",
+      "target": "plugins_graphify_graphifyplugin",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "L127",
+      "weight": 1.0,
+      "source": "pythonbot_bot",
+      "target": "pythonbot_bot_card",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "pythonbot_bot",
+      "target": "pythonbot_bot_fetch_rss",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "L61",
+      "weight": 1.0,
+      "source": "pythonbot_bot",
+      "target": "pythonbot_bot_generate_html",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "L142",
+      "weight": 1.0,
+      "source": "pythonbot_bot",
+      "target": "pythonbot_bot_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "pythonbot_bot",
+      "target": "pythonbot_bot_parse_rss",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "144",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "pythonbot_bot_main",
+      "target": "pythonbot_bot_fetch_rss"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "145",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "pythonbot_bot_main",
+      "target": "pythonbot_bot_parse_rss"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "63",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "pythonbot_bot_generate_html",
+      "target": "pythonbot_bot_card"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "pythonbot/bot.py",
+      "source_location": "147",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "pythonbot_bot_main",
+      "target": "pythonbot_bot_generate_html"
+    },
+    {
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "pythonbot/bot.py",
+      "source_location": "148",
+      "weight": 1.0,
+      "source": "pythonbot_bot_main",
+      "target": "pythonbot_news"
+    },
+    {
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "pythonbot/bot.py",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "pythonbot_bot_main",
+      "target": "snakegame_snake_main"
+    },
+    {
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "readme",
+      "target": "pythonbot_bot_main"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "snakegame/snake.py",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "snakegame_snake",
+      "target": "snakegame_snake_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "readme",
+      "target": "snakegame_snake_main"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L9",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_addbtn",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L91",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_addtask",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L132",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_closeotherswipes",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L15",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_dateel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L125",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_deletetask",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_emptystate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_emptysubtitle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_emptytitle",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L43",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_escapehtml",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_generateid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L35",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_getfilteredtasks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L222",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_handledeleteclick",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L200",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_handletaskclick",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L179",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_handletouchend",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L153",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_handletouchmove",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L138",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_handletouchstart",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L245",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_init",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_loadtasks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L49",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_render",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_savetasks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L14",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_segments",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_swipestate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_taskcount",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_taskinput",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_tasklist",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_tasks",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L117",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_toggletask",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "L235",
+      "weight": 1.0,
+      "source": "todolist_script",
+      "target": "todolist_script_updatedate",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "246",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_init",
+      "target": "todolist_script_loadtasks"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "105",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_addtask",
+      "target": "todolist_script_savetasks"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "127",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_deletetask",
+      "target": "todolist_script_savetasks"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "121",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_toggletask",
+      "target": "todolist_script_savetasks"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "98",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_addtask",
+      "target": "todolist_script_generateid"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "50",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_render",
+      "target": "todolist_script_getfilteredtasks"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "todolist/script.js",
+      "source_location": "84",
+      "weight": 1.0,
+      "source": "todolist_script_render",
+      "target": "todolist_script_escapehtml"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "108",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_addtask",
+      "target": "todolist_script_render"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "128",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_deletetask",
+      "target": "todolist_script_render"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "248",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_init",
+      "target": "todolist_script_render"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "122",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_toggletask",
+      "target": "todolist_script_render"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "209",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_handletaskclick",
+      "target": "todolist_script_toggletask"
+    },
+    {
+      "relation": "calls",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "todolist/script.js",
+      "source_location": "231",
+      "weight": 1.0,
+      "source": "todolist_script_handledeleteclick",
+      "target": "todolist_script_deletetask"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "142",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_handletouchstart",
+      "target": "todolist_script_closeotherswipes"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "todolist/script.js",
+      "source_location": "247",
+      "weight": 1.0,
+      "confidence_score": 1.0,
+      "source": "todolist_script_init",
+      "target": "todolist_script_updatedate"
+    },
+    {
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "README.md",
+      "source_location": null,
+      "weight": 1.0,
+      "source": "readme",
+      "target": "todolist_script_init"
+    },
+    {
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.95,
+      "source_file": "todolist/index.html",
+      "source_location": "52",
+      "weight": 1.0,
+      "source": "todolist_index",
+      "target": "todolist_script_init"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "todolist_swipe_interaction",
+      "label": "Swipe-to-Delete Interaction System",
+      "nodes": [
+        "todolist_script_handletouchstart",
+        "todolist_script_handletouchmove",
+        "todolist_script_handletouchend",
+        "todolist_script_closeotherswipes"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "todolist/script.js"
+    },
+    {
+      "id": "pythonbot_rss_pipeline",
+      "label": "RSS-to-HTML News Pipeline",
+      "nodes": [
+        "pythonbot_bot_fetch_rss",
+        "pythonbot_bot_parse_rss",
+        "pythonbot_bot_generate_html",
+        "pythonbot_bot_card",
+        "pythonbot_bot_main"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "pythonbot/bot.py"
+    },
+    {
+      "id": "todolist_data_lifecycle",
+      "label": "Task CRUD Data Lifecycle",
+      "nodes": [
+        "todolist_script_loadtasks",
+        "todolist_script_savetasks",
+        "todolist_script_addtask",
+        "todolist_script_deletetask",
+        "todolist_script_toggletask",
+        "todolist_script_render"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "todolist/script.js"
+    }
+  ],
+  "built_at_commit": "edfe7c502a36c0c6ef5ae1d0192203214591b013"
+}
