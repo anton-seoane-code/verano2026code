@@ -2,6 +2,7 @@
 ## 18/06
 ### Projects:
 - [x] Installed Graphify on OpenCode
+- [x] Processing Sketches (particles, waves, fractal tree, boids, morph, interactive)
 ## 16/06
 ### Projects: 
 - [x] Opencode and Hermes installed on Hyper-V
