@@ -1,4 +1,7 @@
 # Report
+## 19/06
+### Projects:
+- [x] PDF Exam Generator (made with OpenCode)
 ## 18/06
 ### Projects:
 - [x] Installed Graphify on OpenCode
