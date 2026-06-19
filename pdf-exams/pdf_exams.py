@@ -2,6 +2,7 @@
 import sys
 import re
 import random
+import argparse
 
 
 BANNED = {
@@ -14,15 +15,18 @@ BANNED = {
     'many', 'much', 'some', 'any', 'every', 'all', 'both', 'each',
     'also', 'just', 'very', 'too', 'only', 'its', 'their', 'his', 'her',
     'which', 'what', 'where', 'when', 'who', 'why', 'how', 'not', 'no',
-    'has', 'have', 'had', 'does', 'does', 'did', 'will', 'would', 'can',
-    'could', 'should', 'may', 'might', 'shall', 'about', 'above', 'across',
-    'after', 'along', 'among', 'around', 'before', 'behind', 'below',
-    'beneath', 'beside', 'between', 'beyond', 'down', 'inside', 'outside',
-    'under', 'until', 'up', 'upon', 'within', 'without', 'into', 'onto',
-    'onto', 'from', 'with', 'through', 'during', 'such', 'other', 'another',
-    'both', 'each', 'few', 'more', 'most', 'several', 'new', 'old',
+    'has', 'have', 'had', 'does', 'did', 'will', 'would', 'can',
+    'could', 'should', 'may', 'might', 'shall', 'is', 'are', 'was', 'were',
+    'be', 'been', 'being', 'am',
+    'about', 'above', 'across', 'after', 'along', 'among', 'around',
+    'before', 'behind', 'below', 'beneath', 'beside', 'between', 'beyond',
+    'down', 'inside', 'outside', 'under', 'until', 'up', 'upon', 'within',
+    'without', 'into', 'onto', 'from', 'with', 'through', 'during',
+    'such', 'other', 'another', 'few', 'more', 'most', 'several',
     'like', 'including', 'according', 'well', 'back', 'even', 'still',
-    'already', 'yet', 'about', 'again', 'ever', 'never', 'always',
+    'already', 'yet', 'again', 'ever', 'never', 'always',
+    'while', 'because', 'since', 'although', 'though', 'unless',
+    'than', 'then', 'else', 'otherwise', 'nor',
 }
 
 
@@ -52,17 +56,16 @@ def extract_text(pdf_path):
     return text
 
 
-def split_sentences(text):
+def split_sentences(text, min_len=20, max_len=float('inf')):
     text = re.sub(r'\s+', ' ', text)
     sentences = re.split(r'(?<=[.!?])\s+', text)
-    return [s.strip() for s in sentences if len(s.strip()) > 20]
+    return [s.strip() for s in sentences if min_len < len(s.strip()) < max_len]
 
 
 def extract_key_terms(sentence):
     terms = []
     clean = re.sub(r'[^\w\s]', ' ', sentence)
     tokens = clean.split()
-    token_set = set(t.lower() for t in tokens)
 
     for i, token in enumerate(tokens):
         if len(token) < 3 or token.lower() in BANNED:
@@ -84,8 +87,15 @@ def extract_key_terms(sentence):
     return terms
 
 
-def generate_questions(text, max_questions=10):
-    sentences = split_sentences(text)
+def generate_questions(text, max_questions=10, difficulty='mid'):
+    diff_conf = {
+        'easy':  {'min_len': 20, 'max_len': 100, 'priority': {'proper': 0, 'acronym': 1, 'number': 2}},
+        'mid':   {'min_len': 20, 'max_len': float('inf'), 'priority': {'acronym': 0, 'proper': 1, 'number': 2}},
+        'hard':  {'min_len': 40, 'max_len': 250, 'priority': {'number': 0, 'proper': 1, 'acronym': 2}},
+    }
+    cfg = diff_conf.get(difficulty, diff_conf['mid'])
+
+    sentences = split_sentences(text, min_len=cfg['min_len'], max_len=cfg['max_len'])
 
     sentence_data = []
     all_terms = []
@@ -94,8 +104,7 @@ def generate_questions(text, max_questions=10):
         terms = extract_key_terms(sent)
         if not terms:
             continue
-        priority = {'acronym': 0, 'proper': 1, 'number': 2}
-        best_term, best_cat = min(terms, key=lambda t: priority.get(t[1], 99))
+        best_term, best_cat = min(terms, key=lambda t: cfg['priority'].get(t[1], 99))
         sentence_data.append((sent, best_term, best_cat))
         all_terms.append((best_term, best_cat))
 
@@ -120,7 +129,6 @@ def generate_questions(text, max_questions=10):
         pattern = re.compile(re.escape(answer), re.IGNORECASE)
         question_text = pattern.sub('______', sent, count=1)
 
-        # Deduplicate distractor pool
         seen_terms = set()
         unique_terms = []
         for t, c in all_terms:
@@ -129,13 +137,31 @@ def generate_questions(text, max_questions=10):
                 seen_terms.add(low)
                 unique_terms.append((t, c))
 
-        same_cat = [t for t, c in unique_terms if c == ans_cat]
-        other = [t for t, c in unique_terms if c != ans_cat]
+        if difficulty == 'easy':
+            opposite = {'proper': ['acronym', 'number'], 'acronym': ['proper', 'number'], 'number': ['proper', 'acronym']}
+            opp_cats = opposite.get(ans_cat, ['proper', 'acronym'])
+            pool = [t for t, c in unique_terms if c in opp_cats]
+            random.shuffle(pool)
+            distractors = pool[:2]
+            if len(distractors) < 2:
+                rest = [t for t, c in unique_terms if c not in opp_cats]
+                random.shuffle(rest)
+                distractors += rest[:2 - len(distractors)]
+        elif difficulty == 'hard':
+            same_cat = [t for t, c in unique_terms if c == ans_cat]
+            random.shuffle(same_cat)
+            distractors = same_cat[:2]
+            if len(distractors) < 2:
+                other = [t for t, c in unique_terms if c != ans_cat]
+                random.shuffle(other)
+                distractors += other[:2 - len(distractors)]
+        else:
+            same_cat = [t for t, c in unique_terms if c == ans_cat]
+            other = [t for t, c in unique_terms if c != ans_cat]
+            random.shuffle(same_cat)
+            random.shuffle(other)
+            distractors = same_cat[:2] if len(same_cat) >= 2 else same_cat + other[:2 - len(same_cat)]
 
-        random.shuffle(same_cat)
-        random.shuffle(other)
-
-        distractors = same_cat[:2] if len(same_cat) >= 2 else same_cat + other[:2 - len(same_cat)]
         if len(distractors) < 2:
             continue
 
@@ -146,19 +172,20 @@ def generate_questions(text, max_questions=10):
             'question': question_text,
             'options': options,
             'answer': answer,
-            'correct_index': options.index(answer)
+            'correct_index': options.index(answer),
         })
 
     return questions
 
 
-def run_exam(questions):
+def run_exam(questions, difficulty='mid'):
     answers = []
     total = len(questions)
     labels = ['a', 'b', 'c']
 
+    diff_label = difficulty.upper()
     print(f"\n{'=' * 60}")
-    print(f"  PDF EXAM — {total} Questions")
+    print(f"  PDF EXAM — {diff_label} — {total} Questions")
     print(f"{'=' * 60}\n")
 
     for i, q in enumerate(questions, 1):
@@ -198,14 +225,19 @@ def run_exam(questions):
 
 
 def main():
-    if len(sys.argv) != 2:
-        print(f"Usage: python {sys.argv[0]} <pdf-file>", file=sys.stderr)
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description='Generate exam questions from a PDF file.')
+    parser.add_argument('pdf', help='Path to the PDF file')
+    parser.add_argument('-d', '--difficulty', choices=['easy', 'mid', 'hard'], default='mid',
+                        help='Difficulty level (default: mid)')
+    parser.add_argument('-q', '--questions', type=int, default=10,
+                        help='Number of questions to generate (default: 10)')
+    args = parser.parse_args()
 
-    pdf_path = sys.argv[1]
-    print(f"Reading PDF: {pdf_path}")
+    print(f"Reading PDF: {args.pdf}")
+    print(f"Difficulty: {args.difficulty}")
+    print(f"Questions: {args.questions}")
 
-    text = extract_text(pdf_path)
+    text = extract_text(args.pdf)
 
     if not text.strip():
         print("Error: No text extracted from PDF.", file=sys.stderr)
@@ -213,11 +245,11 @@ def main():
 
     print(f"Extracted {len(text)} characters of text.")
 
-    questions = generate_questions(text)
+    questions = generate_questions(text, max_questions=args.questions, difficulty=args.difficulty)
     print(f"Generated {len(questions)} questions.")
 
     if questions:
-        run_exam(questions)
+        run_exam(questions, difficulty=args.difficulty)
     else:
         print("Could not generate questions. The PDF may not contain enough text content.")
         sys.exit(1)
