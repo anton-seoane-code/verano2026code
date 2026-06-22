@@ -1,4 +1,13 @@
 # Report
+## 22/06
+### Projects:
+- [x] API Definition Document `api-definicion/`
+  - Definición de API con analogía del restaurante
+  - Componentes clave, tipos (REST, GraphQL, SOAP, WebSocket, gRPC) y ejemplo conceptual
+- [x] GitHub Repo Searcher `repo-searcher/`
+  - CLI con búsqueda por palabra clave, lenguaje (`--language`) y estrellas mínimas (`--min-stars`)
+  - GUI con tkinter (campos de filtro, tabla de resultados, búsqueda en hilo separado)
+  - Dependencias: `requests` + `rich`
 ## 19/06
 ### Projects:
 - [x] PDF Exam Generator (made with OpenCode)
