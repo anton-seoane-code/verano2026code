@@ -1,4 +1,10 @@
 # Report
+## 23/06
+### Projects:
+- [x] Directory Analyzer `directory-analyzer/`
+  - CLI que analiza un directorio, clasifica archivos por tipo (imágenes, vídeos, documentos) y los organiza en subdirectorios automáticamente
+  - Flags: `--dry-run`, `--copy`, `--recursive`
+  - Dependencias: solo stdlib
 ## 22/06
 ### Projects:
 - [x] API Definition Document `api-definicion/`
