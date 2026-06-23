@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Directory Analyzer</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📁 Directory Analyzer</h1>
+      <p class="subtitle">Classify, organize &amp; inspect your files</p>
+    </header>
+
+    <section class="card" id="input-section">
+      <div class="input-row">
+        <input type="text" id="directory-input" placeholder="Enter directory path..." value="">
+        <button id="browse-btn" class="btn btn-secondary">Browse</button>
+        <button id="analyze-btn" class="btn btn-primary">Analyze</button>
+      </div>
+      <div class="options-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="recursive-toggle"> Recursive
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="duplicates-toggle" checked> Detect duplicates
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="copy-toggle"> Copy (instead of move)
+        </label>
+      </div>
+    </section>
+
+    <section class="card" id="results-section" style="display:none;">
+      <div class="results-header">
+        <h2>Results</h2>
+        <span id="directory-label" class="path-label"></span>
+      </div>
+
+      <div class="stats-grid" id="stats-grid"></div>
+
+      <div id="duplicates-section" style="display:none;">
+        <h3>🔄 Duplicates</h3>
+        <div id="duplicates-list"></div>
+      </div>
+
+      <div id="unrecognized-section" style="display:none;">
+        <h3>❓ Unrecognized Files</h3>
+        <div id="unrecognized-list"></div>
+      </div>
+
+      <div class="action-bar">
+        <button id="organize-btn" class="btn btn-primary">📦 Organize Files</button>
+        <button id="dry-run-btn" class="btn btn-secondary">👁 Preview Organize</button>
+        <button id="back-btn" class="btn btn-ghost">← Back</button>
+      </div>
+    </section>
+
+    <section class="card" id="report-section" style="display:none;">
+      <h2>Report</h2>
+      <pre id="report-output"></pre>
+      <button id="report-back-btn" class="btn btn-ghost">← Back</button>
+    </section>
+
+    <section id="browser-section" class="card" style="display:none;">
+      <div class="browser-header">
+        <h2>📂 File Browser</h2>
+        <span id="browser-path" class="path-label"></span>
+      </div>
+      <div class="browser-toolbar">
+        <button id="browser-up-btn" class="btn btn-sm btn-secondary">⬆ Up</button>
+        <button id="browser-here-btn" class="btn btn-sm btn-primary">Use This Directory</button>
+      </div>
+      <div id="browser-content"></div>
+    </section>
+
+    <footer>
+      <p>Directory Analyzer — Built with Hermes Agent</p>
+    </footer>
+  </div>
+
+  <div id="toast" class="toast"></div>
+
+<script src="app.js"></script>
+</body>
+</html>

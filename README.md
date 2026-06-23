@@ -7,6 +7,12 @@
   - Web GUI con tree browser, detección de duplicados (SHA256) e informe detallado
   - API JSON
   - Dependencias: solo stdlib
+- [x] Directory Analyzer (Hermes Edition) `directory-analyzer-hermes/`
+  - CLI con auto-clasificación en imágenes, vídeos y documentos con subdirectorios con emojis (📷 🎬 📄)
+  - Flags: `--dry-run`, `--copy`, `--recursive`, `--detect-duplicates`, `--analyze-only`
+  - Web GUI con file browser integrado, detección de duplicados por SHA256, y organize preview
+  - API JSON endpoints: browse, analyze, organize
+  - Dependencias: solo stdlib
 ## 22/06
 ### Projects:
 - [x] API Definition Document `api-definicion/`
