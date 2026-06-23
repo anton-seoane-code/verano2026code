@@ -1,6 +1,6 @@
 # repo-searcher
 
-CLI para buscar repositorios en GitHub por palabra clave, mostrando nombre, estrellas, lenguaje y descripción.
+Busca repositorios en GitHub por palabra clave, mostrando nombre, estrellas, lenguaje y descripción. Incluye interfaz de línea de comandos (CLI) e interfaz gráfica (GUI).
 
 ## Requisitos
 
@@ -12,25 +12,38 @@ CLI para buscar repositorios en GitHub por palabra clave, mostrando nombre, estr
 pip install -r requirements.txt
 ```
 
-## Uso
+## Uso (CLI)
 
 ```bash
 python repo_searcher.py "machine learning"
 python repo_searcher.py "web framework" --limit 20
-python repo_searcher.py rust
+python repo_searcher.py rust --language rust --min-stars 5000
+python repo_searcher.py "data science" --language python -s 1000 -l 15
 ```
 
-## Salida
+### Flags
 
+| Flag | Descripción |
+|------|-------------|
+| `keyword` | Palabra clave a buscar (obligatorio) |
+| `-l`, `--limit` | Número máximo de resultados (1-100, defecto: 10) |
+| `--language`, `-lang` | Filtrar por lenguaje de programación |
+| `--min-stars`, `-s` | Número mínimo de estrellas |
+
+## Uso (GUI)
+
+```bash
+python gui.py
 ```
-┌───────┬──────────────────────────────┬───────────┬──────────┬──────────────────────────────┐
-│   #   │ Repositorio                  │ Estrellas │ Lenguaje │ Descripción                  │
-├───────┼──────────────────────────────┼───────────┼──────────┼──────────────────────────────┤
-│   1   │ tensorflow/tensorflow        │    188654 │ Python   │ An Open Source Machine…      │
-│   2   │ facebook/react               │    185432 │ JavaScript│ A declarative…               │
-│   3   │ twbs/bootstrap               │    171234 │ JavaScript│ The most popular…            │
-└───────┴──────────────────────────────┴───────────┴──────────┴──────────────────────────────┘
-```
+
+Se abre una ventana con campos para:
+
+- **Palabra clave** (obligatorio)
+- **Lenguaje** (opcional)
+- **Estrellas mínimas** (opcional)
+- **Límite** (por defecto: 10)
+
+Los resultados se muestran en una tabla con scroll.
 
 ## Límite de tasa
 

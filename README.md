@@ -4,6 +4,8 @@
 - [x] Directory Analyzer `directory-analyzer/`
   - CLI que analiza un directorio, clasifica archivos por tipo (imágenes, vídeos, documentos) y los organiza en subdirectorios automáticamente
   - Flags: `--dry-run`, `--copy`, `--recursive`
+  - Web GUI con tree browser, detección de duplicados (SHA256) e informe detallado
+  - API JSON
   - Dependencias: solo stdlib
 ## 22/06
 ### Projects:

@@ -7,9 +7,14 @@ from rich.console import Console
 from rich.table import Table
 
 
-def search_repositories(keyword, limit=10):
+def search_repositories(keyword, limit=10, language=None, min_stars=None):
     url = "https://api.github.com/search/repositories"
-    params = {"q": keyword, "sort": "stars", "order": "desc", "per_page": limit}
+    query = keyword
+    if language:
+        query += f" language:{language}"
+    if min_stars is not None:
+        query += f" stars:>={min_stars}"
+    params = {"q": query, "sort": "stars", "order": "desc", "per_page": limit}
     headers = {
         "Accept": "application/vnd.github.v3+json",
         "User-Agent": "repo-searcher/1.0",
@@ -82,6 +87,14 @@ def main():
         "-l", "--limit", type=int, default=10,
         help="Número máximo de resultados (por defecto: 10, máximo: 100)"
     )
+    parser.add_argument(
+        "--language", "-lang", type=str, default=None,
+        help="Filtrar por lenguaje de programación (ej. python, rust, javascript)"
+    )
+    parser.add_argument(
+        "--min-stars", "-s", type=int, default=None,
+        help="Número mínimo de estrellas (ej. 1000)"
+    )
     args = parser.parse_args()
 
     if args.limit < 1:
@@ -90,8 +103,11 @@ def main():
     if args.limit > 100:
         print("El límite máximo es 100 (impuesto por la API de GitHub).")
         sys.exit(1)
+    if args.min_stars is not None and args.min_stars < 0:
+        print("El número mínimo de estrellas no puede ser negativo.")
+        sys.exit(1)
 
-    data = search_repositories(args.keyword, args.limit)
+    data = search_repositories(args.keyword, args.limit, args.language, args.min_stars)
     show_results(data, args.keyword)
 
 

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import argparse
+import hashlib
 import shutil
+from collections import defaultdict
 from pathlib import Path
 
 IMAGE_EXTENSIONS = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.svg', '.webp', '.ico', '.tiff', '.tif'}
@@ -24,23 +26,15 @@ def is_in_subdirectory(filepath, root):
     return len(relative.parts) > 1
 
 
-def main():
-    parser = argparse.ArgumentParser(description='Classify and organize files in a directory by type.')
-    parser.add_argument('directory', help='Path to the directory to analyze')
-    parser.add_argument('--dry-run', action='store_true', help='Preview without moving or copying files')
-    parser.add_argument('--copy', action='store_true', help='Copy files instead of moving them')
-    parser.add_argument('--recursive', action='store_true', help='Scan subdirectories recursively')
-    args = parser.parse_args()
-
-    root = Path(args.directory).resolve()
+def scan(directory, recursive=False):
+    root = Path(directory).resolve()
     if not root.is_dir():
-        print(f'Error: {root} is not a valid directory')
-        return
+        raise NotADirectoryError(f'{root} is not a valid directory')
 
     categories = {'images': [], 'videos': [], 'documents': []}
     unrecognized = []
 
-    files = [f for f in root.rglob('*') if f.is_file()] if args.recursive else [f for f in root.iterdir() if f.is_file()]
+    files = [f for f in root.rglob('*') if f.is_file()] if recursive else [f for f in root.iterdir() if f.is_file()]
 
     for filepath in files:
         if is_in_subdirectory(filepath, root):
@@ -51,37 +45,145 @@ def main():
         else:
             unrecognized.append(filepath)
 
-    total_found = sum(len(v) for v in categories.values()) + len(unrecognized)
-    print(f'Found {total_found} files in {root}')
-    for cat, cat_files in categories.items():
-        print(f'  {cat}: {len(cat_files)}')
-    if unrecognized:
-        print(f'  unrecognized: {len(unrecognized)}')
-    print()
+    return categories, unrecognized
 
-    if args.dry_run:
-        print('Dry run — no files were moved or copied')
-        return
+
+def find_duplicates(files):
+    size_groups = defaultdict(list)
+    for f in files:
+        try:
+            size = f.stat().st_size
+            size_groups[size].append(f)
+        except OSError:
+            continue
+
+    duplicates = defaultdict(list)
+    for size, group in size_groups.items():
+        if len(group) < 2:
+            continue
+        hashes = defaultdict(list)
+        for f in group:
+            try:
+                h = hashlib.sha256(f.read_bytes()).hexdigest()
+                hashes[h].append(f)
+            except OSError:
+                continue
+        for h, dup_group in hashes.items():
+            if len(dup_group) > 1:
+                duplicates[h].extend(dup_group)
+
+    return dict(duplicates)
+
+
+def organize(categories, root, copy=False):
+    root = Path(root).resolve()
+    stats = {}
 
     for cat, cat_files in categories.items():
         if not cat_files:
+            stats[cat] = {'moved': 0, 'skipped': 0}
             continue
         dest_dir = root / cat
+        moved = 0
+        skipped = 0
         dest_dir.mkdir(exist_ok=True)
         for src in cat_files:
             dest = dest_dir / src.name
             if dest.exists():
-                print(f'Skipped {src.name} — already exists in {cat}/')
+                skipped += 1
                 continue
-            fn = shutil.copy2 if args.copy else shutil.move
+            fn = shutil.copy2 if copy else shutil.move
             fn(src, dest)
-            action = 'Copied' if args.copy else 'Moved'
-            print(f'{action} {src.name} -> {cat}/')
+            moved += 1
+        stats[cat] = {'moved': moved, 'skipped': skipped}
+
+    return stats
+
+
+def generate_report(categories, unrecognized, duplicates=None, organize_stats=None, directory=''):
+    lines = []
+    lines.append('=' * 55)
+    lines.append(f'  Directory Analyzer Report')
+    lines.append(f'  Directory: {directory}')
+    lines.append('=' * 55)
+    lines.append('')
+
+    total = sum(len(v) for v in categories.values()) + len(unrecognized)
+    lines.append(f'Total files found: {total}')
+    lines.append('')
+
+    lines.append('By category:')
+    for cat in ['images', 'videos', 'documents']:
+        count = len(categories.get(cat, []))
+        lines.append(f'  {cat.capitalize()}: {count}')
+    if unrecognized:
+        lines.append(f'  Unrecognized: {len(unrecognized)}')
+    lines.append('')
+
+    if duplicates:
+        dup_count = sum(len(v) for v in duplicates.values())
+        dup_groups = len(duplicates)
+        lines.append(f'Duplicate files: {dup_count} files in {dup_groups} group(s)')
+        for h, dup_files in duplicates.items():
+            lines.append(f'  Hash {h[:12]}... ({len(dup_files)} files):')
+            for f in dup_files:
+                lines.append(f'    - {f.name}')
+        lines.append('')
+
+    if organize_stats:
+        stats_values = [v for k, v in organize_stats.items() if not k.startswith('_')]
+        total_moved = sum(v['moved'] for v in stats_values)
+        total_skipped = sum(v['skipped'] for v in stats_values)
+        action = 'Copied' if organize_stats.get('_copy', False) else 'Moved'
+        lines.append(f'{action}: {total_moved} files')
+        lines.append(f'Skipped: {total_skipped} files')
+        for cat, st in organize_stats.items():
+            if cat.startswith('_'):
+                continue
+            if st['moved'] > 0 or st['skipped'] > 0:
+                lines.append(f'  {cat.capitalize()}: {st["moved"]} {action.lower()}, {st["skipped"]} skipped')
+        lines.append('')
 
     if unrecognized:
-        print(f'\nUnrecognized files ({len(unrecognized)}):')
+        lines.append('Unrecognized files:')
         for f in unrecognized:
-            print(f'  {f.name}')
+            lines.append(f'  - {f.name}')
+        lines.append('')
+
+    lines.append('=' * 55)
+    return '\n'.join(lines)
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Classify and organize files in a directory by type.')
+    parser.add_argument('directory', help='Path to the directory to analyze')
+    parser.add_argument('--dry-run', action='store_true', help='Preview without moving or copying files')
+    parser.add_argument('--copy', action='store_true', help='Copy files instead of moving them')
+    parser.add_argument('--recursive', action='store_true', help='Scan subdirectories recursively')
+    parser.add_argument('--detect-duplicates', action='store_true', help='Detect duplicate files by hash')
+    parser.add_argument('--analyze-only', action='store_true', help='Only analyze, do not organize')
+    args = parser.parse_args()
+
+    try:
+        categories, unrecognized = scan(args.directory, args.recursive)
+    except (NotADirectoryError, PermissionError, FileNotFoundError) as e:
+        print(f'Error: {e}')
+        return
+
+    all_files = []
+    for v in categories.values():
+        all_files.extend(v)
+    all_files.extend(unrecognized)
+
+    duplicates = find_duplicates(all_files) if args.detect_duplicates else None
+
+    organize_stats = None
+    if not args.analyze_only and not args.dry_run:
+        organize_stats = organize(categories, args.directory, args.copy)
+        organize_stats['_copy'] = args.copy
+
+    report = generate_report(categories, unrecognized, duplicates, organize_stats, args.directory)
+    print(report)
 
 
 if __name__ == '__main__':

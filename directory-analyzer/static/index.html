@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Directory Analyzer</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Directory Analyzer</h1>
+      <p>Classify, organize, and detect duplicates in any directory</p>
+    </header>
+
+    <section class="card directory-picker">
+      <div class="path-row">
+        <input type="text" id="path-input" placeholder="/path/to/directory" spellcheck="false">
+        <button id="browse-btn" class="btn">Browse</button>
+      </div>
+      <div id="tree-browser" class="tree-browser hidden"></div>
+    </section>
+
+    <section class="card options">
+      <h3>Options</h3>
+      <div class="option-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="recursive"> Recursive scan
+        </label>
+        <label class="checkbox-label">
+          <input type="checkbox" id="detect-dups" checked> Detect duplicates
+        </label>
+      </div>
+      <div class="option-row action-row">
+        <span>Action:</span>
+        <label class="radio-label">
+          <input type="radio" name="action" value="move" checked> Move
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="action" value="copy"> Copy
+        </label>
+      </div>
+    </section>
+
+    <section class="card actions">
+      <button id="analyze-btn" class="btn primary">Analyze</button>
+      <button id="organize-btn" class="btn secondary" disabled>Organize</button>
+      <button id="clear-btn" class="btn" disabled>Clear</button>
+    </section>
+
+    <section class="card results" id="results-section">
+      <h3>Results</h3>
+      <div id="results-content">
+        <p class="placeholder">Run an analysis to see results here.</p>
+      </div>
+    </section>
+
+    <section class="card report-section" id="report-section">
+      <h3>Report</h3>
+      <pre id="report-content" class="report-box"></pre>
+    </section>
+
+    <div id="loader" class="loader hidden">
+      <div class="spinner"></div>
+      <span id="loader-text">Processing...</span>
+    </div>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
