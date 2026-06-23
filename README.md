@@ -7,12 +7,44 @@
   - Web GUI con tree browser, detección de duplicados (SHA256) e informe detallado
   - API JSON
   - Dependencias: solo stdlib
-- [x] Directory Analyzer (Hermes Edition) `directory-analyzer-hermes/`
+ - [x] Directory Analyzer (Hermes Edition) `directory-analyzer-hermes/`
   - CLI con auto-clasificación en imágenes, vídeos y documentos con subdirectorios con emojis (📷 🎬 📄)
   - Flags: `--dry-run`, `--copy`, `--recursive`, `--detect-duplicates`, `--analyze-only`
   - Web GUI con file browser integrado, detección de duplicados por SHA256, y organize preview
   - API JSON endpoints: browse, analyze, organize
   - Dependencias: solo stdlib
+
+### Code Review — Directory Analyzer vs Directory Analyzer Hermes
+
+#### Errors in `directory-analyzer/`:
+
+| # | File | Error |
+|---|------|-------|
+| 1 | `analyzer.py:37,40-41` | **`--recursive` flag is non-functional** — `rglob('*')` finds files recursively but `is_in_subdirectory()` immediately skips all files in subdirectories (`len(relative.parts) > 1`). The flag has zero effect. |
+| 2 | `analyzer.py:25` | **No `ValueError` handling in `is_in_subdirectory`** — `relative_to()` raises `ValueError` if `filepath` is not under `root`, which would crash the scan. |
+| 3 | `server.py:179` | **`format` parameter shadows built-in** — `log_message(self, format, *args)` shadows Python's `format()` built-in. |
+| 4 | `analyzer.py:170-171` | **Exits with code 0 on error** — `main()` prints the error and returns (exit 0) instead of `sys.exit(1)`. |
+| 5 | `analyzer.py:170` | **Error messages go to stdout** — `print(f'Error: {e}')` should use `file=sys.stderr`. |
+| 6 | `server.py:3-4` | **Unused imports** — `mimetypes` and `os` imported but never used. |
+| 7 | `server.py:104` | **`handle_browse` returns dirs as raw strings** — `[str(d) for d in dirs]` instead of dicts with `name`/`path` keys, limiting frontend display. |
+| 8 | `server.py:141-145` | **Response missing `category_counts`, `unrecognized_count`, `category_dirs`** — frontend must recompute these from raw lists. |
+
+#### Errors in `directory-analyzer-hermes/`:
+
+| # | File | Error |
+|---|------|-------|
+| 1 | `analyzer.py:59-60,63-64` | **Same `--recursive` bug** — `glob('**/*')` finds files recursively but `is_in_subdirectory()` skips them all. Same root cause as original. |
+| 2 | `server.py:66` | **`do_POST` doesn't parse URL path** — uses `self.path` directly instead of `urlparse(self.path).path`. Query params in POST URLs (e.g. `/api/analyze?foo=bar`) would break routing returning 404. |
+| 3 | `server.py:7` | **Unused import** — `import re` is never used. |
+
+#### Fixes Hermes introduces over the original:
+- Catches `ValueError` in `is_in_subdirectory` (fixes error #2 of original)
+- Uses `sys.exit(1)` on scan errors (fixes error #4)
+- Routes error messages to `stderr` (fixes error #5)
+- Uses `_format` instead of `format` to avoid shadowing built-in (fixes error #3)
+- Richer API responses: `category_counts`, `unrecognized_count`, `category_dirs`, `created_directories`
+- Adds `CATEGORY_DIRS` mapping with emoji subdirectory names
+- Includes epilog with usage examples in CLI help
 ## 22/06
 ### Projects:
 - [x] API Definition Document `api-definicion/`
