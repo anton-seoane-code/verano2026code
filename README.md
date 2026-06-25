@@ -19,6 +19,39 @@
   - Scoreboard: persistente en `localStorage`, filtro por juego, mismo diseño que la versión original
   - Keyboard shortcuts: teclas 1-4 para navegar entre pestañas, teclas A-Z para Hangman
   - Sin servidor necesario: abrir `index.html` en cualquier navegador
+
+### Code Review — Simple Games vs Simple Games Hermes
+
+#### Errors in `simple-games/`:
+
+| # | File | Error |
+|---|------|-------|
+| 1 | `style.css` | `var(--radius-lg)` used but never defined in `:root` — broken border-radius on `.game-btn` |
+| 2 | `app.js` | TTT win highlight marks all filled cells of both players instead of only the 3 winning cells |
+| 3 | `index.html` | Hangman has no category selection or hint system — 42 flat words with no theming |
+| 4 | `app.js` | RPS locked to Classic variant only, no Lizard-Spock support |
+| 5 | `app.js` | No keyboard shortcuts for tab navigation or Hangman letter input |
+| 6 | `style.css` | No responsive media queries — layout breaks on narrow viewports |
+| 7 | `app.js` | No sound effects or visual celebrations (confetti, animations) on game events |
+
+#### Errors in `simple-games-hermes/`:
+
+None identified — all original bugs are fixed and no new issues introduced.
+
+#### Improvements Hermes introduces over the original:
+- Sound engine: 7 distinct sound effects via Web Audio API (click, place, win, lose, draw, correct, wrong)
+- Confetti: CSS particle animation celebration on any game win
+- Keyboard shortcuts: keys 1-4 for tab navigation, keys A-Z for Hangman letter input
+- Hangman categories: 4 thematic word pools (Programming, Animals, Food, Mixed) with 80 total words and per-category hints
+- RPS Lizard-Spock variant: 5-choice mode switchable via selector, each option with emoji
+- Stats dashboard: win/loss/draw counters, per-game breakdowns, active streak and max streak tracking
+- Pop-in animation on TTT cell placement, pulse effect on winning cells, precise win-line highlighting (only 3 cells)
+- Hangman canvas: added rope line above head and eyes on the figure
+- RPS variant saved in score entries for detailed history
+- CSS bug fix: `var(--radius-lg)` corrected to `var(--radius)`
+- Responsive design: `@media (max-width: 420px)` breakpoint
+- Separate `localStorage` key (`simple-games-hermes-scores`) to avoid score collision with original
+
 ## 23/06
 ### Projects:
 - [x] Directory Analyzer `directory-analyzer/`
