@@ -2,9 +2,10 @@
 ## 25/06
 ### Projects:
 - [x] Simple Games `simple-games/`
-  - Tic-Tac-Toe con modo 2 jugadores y modo contra IA con 3 dificultades (easy/medium/hard) usando Minimax con poda alfa-beta
-  - Hangman con ahorcado ASCII en 6 etapas y palabras de programación
-  - Rock-Paper-Scissors al mejor de 3 rondas contra la máquina
+  - Tic-Tac-Toe con interfaz gráfica tkinter: modo 2 jugadores y modo contra IA con 3 dificultades (easy/medium/hard) usando Minimax con poda alfa-beta
+  - Hangman con interfaz gráfica tkinter: ahorcado dibujado en Canvas, teclado A-Z interactivo y 6 etapas
+  - Rock-Paper-Scissors con interfaz gráfica tkinter: botones con emojis, al mejor de 3 rondas
+  - Scoreboard persistente en `scores.json` con tabla por juego y filtro por dificultad/puntuación
 ## 23/06
 ### Projects:
 - [x] Directory Analyzer `directory-analyzer/`
