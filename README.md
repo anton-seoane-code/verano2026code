@@ -1,4 +1,10 @@
 # Report
+## 25/06
+### Projects:
+- [x] Simple Games `simple-games/`
+  - Tic-Tac-Toe con modo 2 jugadores y modo contra IA con 3 dificultades (easy/medium/hard) usando Minimax con poda alfa-beta
+  - Hangman con ahorcado ASCII en 6 etapas y palabras de programación
+  - Rock-Paper-Scissors al mejor de 3 rondas contra la máquina
 ## 23/06
 ### Projects:
 - [x] Directory Analyzer `directory-analyzer/`
