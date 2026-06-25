@@ -8,6 +8,17 @@
   - Rock-Paper-Scissors: 3 botones con emoji, al mejor de 3 rondas contra la máquina
   - Scoreboard persistente en `localStorage` con filtro por juego y tabla de resultados
   - Sin servidor necesario: abrir `index.html` en cualquier navegador
+- [x] Simple Games (Hermes Edition) `simple-games-hermes/`
+  - SPA completa con HTML/CSS/JS: misma base visual glassmorphism oscuro con mejoras
+  - Tic-Tac-Toe: IA con Minimax + poda alfa-beta, animación pop-in en celdas, sonido, confeti al ganar, resaltado de línea ganadora
+  - Hangman: 4 categorías temáticas (Programming, Animals, Food, Mixed) con pista, Canvas mejorado con ojos en la figura, entrada por teclado físico QWERTY
+  - Rock-Paper-Scissors: 2 variantes (Classic y Lizard-Spock con 5 opciones), cada opción con emoji propio, sonido por ronda
+  - Stats panel: tarjetas de Wins/Losses/Draws totales + tabla por juego con racha activa y racha máxima 🔥
+  - Sound engine: efectos de sonido vía Web Audio API (sin archivos externos) — click, place, win, lose, draw, correct, wrong
+  - Confetti: animación CSS particle al ganar cualquier juego
+  - Scoreboard: persistente en `localStorage`, filtro por juego, mismo diseño que la versión original
+  - Keyboard shortcuts: teclas 1-4 para navegar entre pestañas, teclas A-Z para Hangman
+  - Sin servidor necesario: abrir `index.html` en cualquier navegador
 ## 23/06
 ### Projects:
 - [x] Directory Analyzer `directory-analyzer/`
