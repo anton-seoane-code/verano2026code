@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#0a0a0f">
+  <title>Simple Games</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <h1>Games</h1>
+    </header>
+
+    <nav class="nav" id="nav">
+      <button class="nav-btn active" data-section="tictactoe">Tic-Tac-Toe</button>
+      <button class="nav-btn" data-section="hangman">Hangman</button>
+      <button class="nav-btn" data-section="rps">RPS</button>
+      <button class="nav-btn" data-section="scoreboard">Scoreboard</button>
+    </nav>
+
+    <!-- TIC-TAC-TOE -->
+    <section id="tictactoe" class="game-section active">
+      <div class="game-header">
+        <h2>Tic-Tac-Toe</h2>
+        <select class="mode-select" id="ttt-mode">
+          <option value="pvp">Player vs Player</option>
+          <option value="easy">AI &mdash; Easy</option>
+          <option value="medium">AI &mdash; Medium</option>
+          <option value="hard" selected>AI &mdash; Hard</option>
+        </select>
+      </div>
+      <div class="ttt-status" id="ttt-status"></div>
+      <div class="ttt-board" id="ttt-board"></div>
+      <button class="game-btn" id="ttt-new">New Game</button>
+    </section>
+
+    <!-- HANGMAN -->
+    <section id="hangman" class="game-section">
+      <div class="game-header">
+        <h2>Hangman</h2>
+      </div>
+      <canvas id="hangman-canvas" width="300" height="240"></canvas>
+      <div class="hangman-word" id="hangman-word"></div>
+      <div class="hangman-status" id="hangman-status"></div>
+      <div class="keyboard" id="keyboard"></div>
+      <button class="game-btn" id="hangman-new">New Word</button>
+    </section>
+
+    <!-- ROCK PAPER SCISSORS -->
+    <section id="rps" class="game-section">
+      <div class="game-header">
+        <h2>Rock &middot; Paper &middot; Scissors</h2>
+      </div>
+      <div class="rps-score" id="rps-score"></div>
+      <div class="rps-round" id="rps-round"></div>
+      <div class="rps-choices" id="rps-choices">
+        <button class="rps-btn" data-choice="r">&#9994; Rock</button>
+        <button class="rps-btn" data-choice="p">&#9995; Paper</button>
+        <button class="rps-btn" data-choice="s">&#9996; Scissors</button>
+      </div>
+      <div class="rps-result" id="rps-result">Choose your move!</div>
+      <button class="game-btn" id="rps-new">New Game</button>
+    </section>
+
+    <!-- SCOREBOARD -->
+    <section id="scoreboard" class="game-section">
+      <div class="game-header">
+        <h2>Scoreboard</h2>
+      </div>
+      <div class="sb-filters" id="sb-filters">
+        <button class="sb-filter active" data-sb-filter="all">All</button>
+        <button class="sb-filter" data-sb-filter="tic_tac_toe">Tic-Tac-Toe</button>
+        <button class="sb-filter" data-sb-filter="hangman">Hangman</button>
+        <button class="sb-filter" data-sb-filter="rps">RPS</button>
+      </div>
+      <div class="sb-table-wrap">
+        <table class="sb-table" id="sb-table">
+          <thead>
+            <tr><th>Game</th><th>Winner</th><th>Date</th><th>Detail</th></tr>
+          </thead>
+          <tbody id="sb-body"></tbody>
+        </table>
+      </div>
+      <div class="sb-empty" id="sb-empty">No scores yet. Play a game!</div>
+      <button class="game-btn danger-btn" id="sb-clear">Clear All Scores</button>
+    </section>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
