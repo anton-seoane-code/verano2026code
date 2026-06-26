@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Study Assistant</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/markmap-autoloader@0.18.10/dist/browser/browser.js" defer></script>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Study Assistant</h1>
+      <p class="subtitle">Generate summaries, mind maps, and quizzes from your study files</p>
+    </header>
+
+    <section class="card input-section">
+      <div class="input-row">
+        <input type="text" id="dirInput" placeholder="Enter directory path..." spellcheck="false">
+        <button id="scanBtn" class="btn primary">Scan</button>
+      </div>
+    </section>
+
+    <section class="card files-section" id="filesSection" style="display:none">
+      <h2>Files</h2>
+      <div class="options-row">
+        <label class="checkbox-label">
+          <input type="checkbox" id="selectAll" checked> Select All
+        </label>
+        <span id="fileCount" class="count-badge"></span>
+      </div>
+      <div id="fileList" class="file-list"></div>
+    </section>
+
+    <section class="card options-section" id="optionsSection" style="display:none">
+      <h2>Generate</h2>
+      <div class="gen-options">
+        <label class="toggle-label">
+          <input type="checkbox" id="genSummaries" checked>
+          <span class="toggle-text">Summaries</span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="genMindmaps" checked>
+          <span class="toggle-text">Mind Maps</span>
+        </label>
+        <label class="toggle-label">
+          <input type="checkbox" id="genQuizzes" checked>
+          <span class="toggle-text">Quizzes</span>
+        </label>
+      </div>
+      <button id="generateBtn" class="btn primary">Generate</button>
+      <div id="progress" class="progress" style="display:none">
+        <div class="spinner"></div>
+        <span>Processing...</span>
+      </div>
+    </section>
+
+    <section class="card results-section" id="resultsSection" style="display:none">
+      <h2>Results</h2>
+      <div id="tabsContainer" class="tabs-container">
+        <div class="tabs" id="fileTabs"></div>
+      </div>
+      <div id="resultContent" class="result-content"></div>
+    </section>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>
