@@ -1,4 +1,13 @@
 # Report
+## 26/06
+### Projects:
+- [x] Study Assistant `study-assistant/`
+  - CLI + Web GUI tool: scans directories with `.txt`/`.pdf` files, generates extractive summaries, markmap mind maps, and multiple-choice quizzes (a/b/c)
+  - Web GUI with markmap.js mind map rendering and interactive quiz reveal
+  - REST API: `/api/scan` lists files, `/api/generate` produces summaries/mindmaps/quizzes
+  - Python backend, dark glassmorphism UI
+  - Dependencies: PyMuPDF
+
 ## 25/06
 ### Projects:
 - [x] Simple Games `simple-games/`
