@@ -1,31 +1,31 @@
 # algorithms.txt Quiz
 
-**1. The merge sort ______ is a divide-and-conquer sorting algorithm.**
-   a) algorithm
-   b) divide
-   c) half
-   *Answer: a*
+**1. Quick sort is another divide-and-conquer ______.**
+   a) left
+   b) algorithm
+   c) move
+   *Answer: b*
 
-**2. Merge ______ has a time complexity of O(n log n) in all cases and a space complexity of O(n).**
-   a) sort
-   b) half
-   c) index
-   *Answer: a*
+**2. It divides the input array into two halves, recursively sorts each half, and then merges the ______ halves back together.**
+   a) middle
+   b) sorted
+   c) possible
+   *Answer: b*
 
-**3. If the target is smaller, you move right to ______ - 1.**
-   a) binary
-   b) middle
+**3. Binary ______ is an efficient algorithm for finding an item from a sorted list of items.**
+   a) pivot
+   b) binary
+   c) search
+   *Answer: c*
+
+**4. Its in-place version requires O(log n) additional ______.**
+   a) left
+   b) space
    c) halves
    *Answer: b*
 
-**4. You calculate the middle ______ and compare the value at that position with your target.**
-   a) index
-   b) array
-   c) until
-   *Answer: a*
-
-**5. DFS explores as far as ______ along each branch before backtracking, using a stack data structure.**
-   a) complexity
-   b) possible
-   c) sort
-   *Answer: b*
+**5. You calculate the middle ______ and compare the value at that position with your target.**
+   a) list
+   b) move
+   c) index
+   *Answer: c*

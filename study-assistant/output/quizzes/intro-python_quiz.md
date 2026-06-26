@@ -1,31 +1,31 @@
 # intro-python.txt Quiz
 
-**1. The language continues to evolve with new features being added regularly through PEP (______ Enhancement Proposal) process.**
-   a) notable
-   b) Python
-   c) library
+**1. The ______ has various use cases: web development (Django, Flask), data science (NumPy, pandas, matplotlib), artificial intelligence (TensorFlow, PyTorch, scikit-learn), automation and scripting, software testing, and desktop applications (PyQt, Tkinter).**
+   a) python
+   b) language
+   c) code
    *Answer: b*
 
-**2. ______ is dynamically typed and garbage-collected.**
-   a) through
+**2. The language continues to evolve with new features being added regularly through PEP (______ Enhancement Proposal) process.**
+   a) support
    b) Python
+   c) standard
+   *Answer: b*
+
+**3. Its ______ constructs and object-oriented approach aim to help programmers write clear, logical code for small and large-scale projects.**
+   a) multiple
+   b) language
+   c) released
+   *Answer: b*
+
+**4. A global community of ______ develops and maintains CPython, a free and open-source reference implementation.**
+   a) languages
+   b) programmers
+   c) whitespace
+   *Answer: b*
+
+**5. It supports multiple ______ paradigms, including structured (particularly procedural), object-oriented, and functional programming.**
+   a) released
+   b) programming
    c) constructs
    *Answer: b*
-
-**3. ______ 3 was released in 2008 and is the current major version.**
-   a) programmers
-   b) comprehensive
-   c) Python
-   *Answer: c*
-
-**4. ______ 2 reached end-of-life on January 1, 2020.**
-   a) Python
-   b) support
-   c) interpreted
-   *Answer: a*
-
-**5. ______ interpreters are available for many operating systems.**
-   a) Python
-   b) constructs
-   c) languages
-   *Answer: a*
