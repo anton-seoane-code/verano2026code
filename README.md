@@ -9,6 +9,9 @@
   - Web GUI (`python server.py`): dark glassmorphism UI, scan dir → file selection → generate → results
     - Markdown summary rendering, markmap.js mind map rendering, interactive quiz with reveal-answer
   - REST API: `POST /api/scan` lists files, `POST /api/generate` produces summaries/mindmaps/quizzes
+    - `POST /api/export/pdf` converts markdown to PDF download
+    - `GET /api/history` / `GET /api/history/<id>` — browse and restore past sessions
+    - `POST /api/history/clear` — delete all history
   - CLI: `python main.py --dir <path> --all` (or `--summaries`/`--mindmaps`/`--quizzes`)
   - Core modules: `reader.py` (txt + PDF via PyMuPDF), `summarizer.py` (extractive), `mindmap_gen.py` (keyword clustering), `quiz_gen.py` (term blanking + distractor selection)
   - Sample files in `samples/` for quick testing

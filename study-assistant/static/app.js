@@ -10,6 +10,9 @@ document.getElementById("selectAll").addEventListener("change", function() {
   updateFileCount();
 });
 document.getElementById("generateBtn").addEventListener("click", generate);
+document.getElementById("clearHistoryBtn").addEventListener("click", clearHistory);
+
+loadHistory();
 
 async function scanDirectory() {
   const dir = document.getElementById("dirInput").value.trim();
@@ -56,7 +59,6 @@ function updateFileCount() {
   const checked = document.querySelectorAll(".file-checkbox:checked").length;
   const total = document.querySelectorAll(".file-checkbox").length;
   document.getElementById("fileCount").textContent = `${checked} / ${total} files`;
-
   const allChecked = checked === total && total > 0;
   document.getElementById("selectAll").checked = allChecked;
 }
@@ -95,12 +97,11 @@ async function generate() {
   currentResults = data.results || {};
   currentFile = Object.keys(currentResults)[0];
   showResults();
+  loadHistory();
 }
 
 function showResults() {
-  const section = document.getElementById("resultsSection");
-  section.style.display = "block";
-
+  document.getElementById("resultsSection").style.display = "block";
   renderTabs();
   renderResultPanel();
 }
@@ -134,7 +135,7 @@ function renderResultPanel() {
     return;
   }
 
-  const content = document.createElement("div");
+  const panels = document.createElement("div");
   let first = true;
 
   if (res.summary) {
@@ -143,7 +144,16 @@ function renderResultPanel() {
     text.className = "summary-text";
     text.innerHTML = markdownToHtml(res.summary.content);
     panel.appendChild(text);
-    content.appendChild(panel);
+
+    const pdfBtn = document.createElement("button");
+    pdfBtn.className = "pdf-btn";
+    pdfBtn.textContent = "Download PDF";
+    pdfBtn.dataset.content = res.summary.content;
+    pdfBtn.dataset.title = `Summary - ${currentFile}`;
+    pdfBtn.addEventListener("click", downloadPdf);
+    panel.appendChild(pdfBtn);
+
+    panels.appendChild(panel);
     if (first) first = false;
   }
 
@@ -156,18 +166,18 @@ function renderResultPanel() {
     svg.textContent = res.mindmap.content;
     mmContainer.appendChild(svg);
     panel.appendChild(mmContainer);
-    content.appendChild(panel);
+    panels.appendChild(panel);
     if (first) first = false;
   }
 
   if (res.quiz) {
     const panel = createPanel("quiz", "Quiz", first);
     renderQuiz(panel, res.quiz.questions);
-    content.appendChild(panel);
+    panels.appendChild(panel);
     if (first) first = false;
   }
 
-  container.appendChild(content);
+  container.appendChild(panels);
 
   setTimeout(() => {
     if (window.markmap && document.querySelector(".markmap")) {
@@ -234,6 +244,105 @@ function renderQuiz(container, questions) {
 
     container.appendChild(qDiv);
   });
+}
+
+async function downloadPdf(e) {
+  const btn = e.currentTarget;
+  if (btn.classList.contains("loading")) return;
+  btn.classList.add("loading");
+  btn.textContent = "Generating PDF...";
+
+  try {
+    const res = await fetch("/api/export/pdf", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({
+        content: btn.dataset.content,
+        title: btn.dataset.title,
+      })
+    });
+    if (!res.ok) throw new Error("Export failed");
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = (btn.dataset.title || "summary") + ".pdf";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    alert("PDF export failed: " + err.message);
+  } finally {
+    btn.classList.remove("loading");
+    btn.textContent = "Download PDF";
+  }
+}
+
+async function loadHistory() {
+  const res = await fetch("/api/history");
+  const data = await res.json();
+  const entries = data.entries || [];
+
+  const section = document.getElementById("historySection");
+  const list = document.getElementById("historyList");
+
+  if (entries.length === 0) {
+    section.style.display = "none";
+    return;
+  }
+
+  section.style.display = "block";
+  list.innerHTML = "";
+
+  entries.forEach(entry => {
+    const div = document.createElement("div");
+    div.className = "history-item";
+    div.dataset.id = entry.id;
+
+    const time = new Date(entry.timestamp);
+    const timeStr = time.toLocaleString(undefined, {
+      month: "short", day: "numeric",
+      hour: "2-digit", minute: "2-digit"
+    });
+
+    div.innerHTML = `
+      <span class="history-item-time">${timeStr}</span>
+      <span class="history-item-dir">${escapeHtml(entry.directory)}</span>
+      <span class="history-item-files">${entry.files.length} file(s)</span>
+    `;
+
+    div.addEventListener("click", () => restoreHistory(entry.id));
+    list.appendChild(div);
+  });
+}
+
+async function restoreHistory(id) {
+  const res = await fetch(`/api/history/${id}`);
+  const entry = await res.json();
+  if (!entry || entry.error) return;
+
+  currentResults = entry.results || {};
+  currentFile = Object.keys(currentResults)[0];
+  showResults();
+  document.getElementById("dirInput").value = entry.directory;
+
+  const options = entry.options || {};
+  document.getElementById("genSummaries").checked = !!options.summaries;
+  document.getElementById("genMindmaps").checked = !!options.mindmaps;
+  document.getElementById("genQuizzes").checked = !!options.quizzes;
+
+  if (entry.files) {
+    renderFileList(entry.files.map(f => typeof f === "string" ? {name: f, size: 0} : f));
+    document.getElementById("filesSection").style.display = "block";
+    document.getElementById("optionsSection").style.display = "block";
+  }
+}
+
+async function clearHistory() {
+  if (!confirm("Clear all history?")) return;
+  await fetch("/api/history/clear", {method: "POST"});
+  loadHistory();
 }
 
 function markdownToHtml(md) {

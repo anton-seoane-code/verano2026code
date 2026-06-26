@@ -61,6 +61,7 @@ study-assistant/
 
 - Python 3.10+
 - PyMuPDF (`pip install PyMuPDF`)
+- fpdf2 (`pip install fpdf2`)
 
 ## Changelog
 
@@ -75,3 +76,5 @@ study-assistant/
 - Web GUI: dark glassmorphism UI with markmap.js and interactive quiz
 - CLI: `main.py` with `--dir` and `--summaries`/`--mindmaps`/`--quizzes`/`--all` flags
 - Sample files and end-to-end verification
+- PDF export: `POST /api/export/pdf` converts markdown to downloadable PDF via fpdf2
+- History: SQLite-backed persistent history, auto-save after each generation, browse/restore/clear via API and UI

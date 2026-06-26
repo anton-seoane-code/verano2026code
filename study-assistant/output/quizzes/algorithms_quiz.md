@@ -1,31 +1,31 @@
 # algorithms.txt Quiz
 
-**1. Dynamic programming is a method for solving complex ______ by breaking them down into simpler subproblems.**
-   a) problems
-   b) space
-   c) value
+**1. The merge sort ______ is a divide-and-conquer sorting algorithm.**
+   a) algorithm
+   b) divide
+   c) half
    *Answer: a*
 
-**2. It picks a pivot element and partitions the array around the pivot so that elements smaller than the pivot are on the ______ and elements greater are on the right.**
-   a) problems
-   b) left
-   c) greater
-   *Answer: b*
-
-**3. It is applicable to ______ exhibiting overlapping subproblems and optimal substructure.**
-   a) index
-   b) problems
-   c) conquer
-   *Answer: b*
-
-**4. The merge sort ______ is a divide-and-conquer sorting algorithm.**
-   a) array
-   b) search
-   c) algorithm
-   *Answer: c*
-
-**5. Binary ______ runs in logarithmic time O(log n), making it much faster than linear search for large datasets.**
-   a) middle
+**2. Merge ______ has a time complexity of O(n log n) in all cases and a space complexity of O(n).**
+   a) sort
    b) half
-   c) search
-   *Answer: c*
+   c) index
+   *Answer: a*
+
+**3. If the target is smaller, you move right to ______ - 1.**
+   a) binary
+   b) middle
+   c) halves
+   *Answer: b*
+
+**4. You calculate the middle ______ and compare the value at that position with your target.**
+   a) index
+   b) array
+   c) until
+   *Answer: a*
+
+**5. DFS explores as far as ______ along each branch before backtracking, using a stack data structure.**
+   a) complexity
+   b) possible
+   c) sort
+   *Answer: b*
