@@ -1,0 +1,11 @@
+Binary search is an efficient algorithm for finding an item from a sorted list of items. It works by repeatedly dividing in half the portion of the list that could contain the item, until you have narrowed down the possible locations to just one. Binary search runs in logarithmic time O(log n), making it much faster than linear search for large datasets.
+
+To implement binary search, you start with two pointers: left at index 0 and right at the last index. You calculate the middle index and compare the value at that position with your target. If the middle value equals the target, you return the index. If the target is greater, you move left to middle + 1. If the target is smaller, you move right to middle - 1. You repeat this process until left exceeds right.
+
+The merge sort algorithm is a divide-and-conquer sorting algorithm. It divides the input array into two halves, recursively sorts each half, and then merges the sorted halves back together. Merge sort has a time complexity of O(n log n) in all cases and a space complexity of O(n).
+
+Quick sort is another divide-and-conquer algorithm. It picks a pivot element and partitions the array around the pivot so that elements smaller than the pivot are on the left and elements greater are on the right. Quick sort has average time complexity of O(n log n) but worst-case of O(n^2). Its in-place version requires O(log n) additional space.
+
+Depth-First Search (DFS) and Breadth-First Search (BFS) are fundamental graph traversal algorithms. DFS explores as far as possible along each branch before backtracking, using a stack data structure. BFS explores all vertices at the present depth before moving to vertices at the next depth level, using a queue data structure. BFS finds the shortest path in unweighted graphs.
+
+Dynamic programming is a method for solving complex problems by breaking them down into simpler subproblems. It is applicable to problems exhibiting overlapping subproblems and optimal substructure. Classic dynamic programming problems include the Fibonacci sequence, knapsack problem, longest common subsequence, and shortest path problems.

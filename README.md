@@ -2,10 +2,16 @@
 ## 26/06
 ### Projects:
 - [x] Study Assistant `study-assistant/`
-  - CLI + Web GUI tool: scans directories with `.txt`/`.pdf` files, generates extractive summaries, markmap mind maps, and multiple-choice quizzes (a/b/c)
-  - Web GUI with markmap.js mind map rendering and interactive quiz reveal
-  - REST API: `/api/scan` lists files, `/api/generate` produces summaries/mindmaps/quizzes
-  - Python backend, dark glassmorphism UI
+  - CLI + Web GUI tool: scans directories with `.txt`/`.pdf` files, generates three output types:
+    - **Summaries** — extractive summarization via sentence scoring (frequency + position + length)
+    - **Mind maps** — Markmap-format interactive mind maps from keyword extraction & topic clustering
+    - **Quizzes** — multiple-choice questions (a/b/c) with distractors from source text
+  - Web GUI (`python server.py`): dark glassmorphism UI, scan dir → file selection → generate → results
+    - Markdown summary rendering, markmap.js mind map rendering, interactive quiz with reveal-answer
+  - REST API: `POST /api/scan` lists files, `POST /api/generate` produces summaries/mindmaps/quizzes
+  - CLI: `python main.py --dir <path> --all` (or `--summaries`/`--mindmaps`/`--quizzes`)
+  - Core modules: `reader.py` (txt + PDF via PyMuPDF), `summarizer.py` (extractive), `mindmap_gen.py` (keyword clustering), `quiz_gen.py` (term blanking + distractor selection)
+  - Sample files in `samples/` for quick testing
   - Dependencies: PyMuPDF
 
 ## 25/06
