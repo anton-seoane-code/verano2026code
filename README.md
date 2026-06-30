@@ -1,4 +1,21 @@
 # Report
+## 30/06
+### Projects:
+- [x] Space Invaders — Alien Conquer `space-invaders/`
+  - Full recreation of Alien Conquer by Taiua Pires (pygame.org/project/584) from scratch
+  - 1–4 player arcade space shooter with 4 color-coded ships (Red, Green, Blue, Yellow)
+  - AI opponent with targeting and dodging behavior
+  - Aliens switch color on hit; scoring: +10 same color, +20 different color
+  - Resurrection mechanic: leading player revives instead of dying
+  - Power-ups: blue laser cannon (rapid piercing shots) and red bullet time (slow motion)
+  - Ship-to-ship collision detection
+  - JSON config save/load (`alien_conquer.cfg`)
+  - Credits screen with auto-scrolling and speed control
+  - Title screen, game-over screen, configuration screen, HUD with scores and lives
+  - 4 keyboard control schemes (arrows+RCTRL, WASD+SPACE, JIKL+P, numpad) + joystick auto-detect
+  - All graphics rendered with `pygame.draw` primitives (original source links were dead)
+  - Dependencies: pygame
+
 ## 26/06
 ### Projects:
 - [x] Study Assistant `study-assistant/`
