@@ -32,3 +32,11 @@ All notable changes to this project are documented below.
   - Wall collision detection (out of bounds)
   - Head drawn with DARK_GREEN outline + GREEN fill + white eye
   - Body segments drawn as green rects with dark green border
+
+### [1.2.0] — 2026-06-30
+
+#### Added
+- Full `food.py` implementation:
+  - `RedFood` — permanent until eaten, spawns on random empty cell, drawn as red square with yellow center
+  - `BlueBonus` — spawns briefly (120 frames), blinks when about to disappear, drawn as blue square with white center
+  - Both avoid spawning on snake body
