@@ -20,3 +20,15 @@ All notable changes to this project are documented below.
 - `food.py` — red food and blue bonus stubs
 - `constants.py` — game constants
 - `requirements.txt` — pygame dependency
+
+### [1.1.0] — 2026-06-30
+
+#### Added
+- Full `snake.py` implementation:
+  - Grid-based segment list with (x, y) coordinate tracking
+  - Direction queue for buffering multiple direction changes per frame
+  - Grid-aligned movement with grow flag for length increase
+  - Self-collision detection (head vs body)
+  - Wall collision detection (out of bounds)
+  - Head drawn with DARK_GREEN outline + GREEN fill + white eye
+  - Body segments drawn as green rects with dark green border
