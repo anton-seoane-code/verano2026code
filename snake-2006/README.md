@@ -52,3 +52,11 @@ All notable changes to this project are documented below.
   - Grid line background
   - Score HUD (top-left) and high score display (top-right)
   - High score persistence via `snake_2006.high` file
+
+### [1.4.0] — 2026-06-30
+
+#### Added
+- Start screen with game instructions and high score display
+- Game over screen with final score, new high score celebration
+- High score auto-save when beating previous record
+- Full screen flow: start → playing → game over → start

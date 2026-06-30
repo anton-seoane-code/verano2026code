@@ -1,6 +1,17 @@
 # Report
 ## 30/06
 ### Projects:
+- [x] Snake 2006 `snake-2006/`
+  - Classic Snake recreation by Cifa (pygame.org/project/433) from scratch
+  - Grid-based movement (30x30) on a 600x600 board
+  - Red food: +1 point, permanent until eaten
+  - Blue bonuses: +5 points, spawn briefly and blink before disappearing
+  - Pause with 'P' key and overlay
+  - High score persistence to local file (`snake_2006.high`)
+  - Start screen with instructions, game over with new high score detection
+  - All graphics rendered with `pygame.draw` primitives (original source links were dead)
+  - Controls: Arrow keys to move
+  - Dependencies: pygame
 - [x] Space Invaders — Alien Conquer `space-invaders/`
   - Full recreation of Alien Conquer by Taiua Pires (pygame.org/project/584) from scratch
   - 1–4 player arcade space shooter with 4 color-coded ships (Red, Green, Blue, Yellow)
