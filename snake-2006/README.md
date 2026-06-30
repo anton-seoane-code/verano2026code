@@ -40,3 +40,15 @@ All notable changes to this project are documented below.
   - `RedFood` — permanent until eaten, spawns on random empty cell, drawn as red square with yellow center
   - `BlueBonus` — spawns briefly (120 frames), blinks when about to disappear, drawn as blue square with white center
   - Both avoid spawning on snake body
+
+### [1.3.0] — 2026-06-30
+
+#### Added
+- Full `game.py` implementation:
+  - Grid-based movement with timing interval (MOVE_INTERVAL=8 frames)
+  - Collision detection: wall death, self-bite death, red food (+1 + grow), blue bonus (+5 + grow)
+  - Pause toggle with 'P' key and overlay
+  - Blue bonus auto-spawns every 2-5 seconds
+  - Grid line background
+  - Score HUD (top-left) and high score display (top-right)
+  - High score persistence via `snake_2006.high` file
