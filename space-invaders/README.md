@@ -8,21 +8,32 @@ collect power-ups, and outlast your opponents!
 
 ## Changelog
 
-### 2026-06-30 — Commit 1: Project skeleton
-- Initial project setup with directory structure
-- `main.py` — entry point
-- `game.py` — main game class with state machine (title, playing, game over, credits, config)
-- `player.py` — player ship with movement, shooting, lives, power-up state
-- `alien.py` — alien enemies with AI movement
-- `bullet.py` — projectile system
-- `powerup.py` — laser cannon and bullet time power-ups
-- `ai.py` — AI controller for computer players
-- `config.py` — config save/load to JSON file
-- `constants.py` — all game constants
-- `requirements.txt` — pygame dependency
-- Control schemes for 4 players (keyboard + joystick support)
-- Title screen, game over screen, credits screen, configuration screen
-- Full collision detection (player-alien, bullet-alien, player-powerup, player-player)
-- Scoring: +10 for matching color, +20 for different color
-- Resurrection mechanic: leading player revives on hit
-- Complete game loop with spawning, power-up drops, and HUD
+All notable changes to this project are documented below.
+
+### [1.0.0] — 2026-06-30
+
+#### Added
+- Initial project release — full recreation of Alien Conquer by Taiua Pires
+- `main.py` — game entry point
+- `game.py` — main game loop with state machine (title, playing, game over, credits, config)
+- `player.py` — player ship with 8-directional movement, shooting, lives, and power-up state
+- `alien.py` — alien enemies with steering AI toward nearest player
+- `bullet.py` — projectile system supporting normal and laser shots
+- `powerup.py` — two power-ups: blue laser cannon and red bullet time
+- `ai.py` — AI controller for computer-controlled opponents with targeting and dodging
+- `config.py` — JSON-based config save/load (`alien_conquer.cfg`)
+- `constants.py` — centralized game constants
+- `requirements.txt` — pygame dependency declaration
+- 4 keyboard control schemes (P1: arrows+RCTRL, P2: WASD+SPACE, P3: JIKL+P, P4: numpad)
+- Automatic joystick detection and configuration
+- Title screen with menu navigation (Start, How to Play, Config, Credits)
+- Game over screen with winner announcement and scoreboard
+- Credits screen with auto-scrolling text (UP/DOWN to control scroll speed)
+- Configuration screen (number of players, number of aliens)
+- HUD showing score and lives for each player
+- Full collision detection: player-alien, bullet-alien, player-powerup, player-player
+- Alien respawn system maintaining minimum alien count
+- Alien color-switching on hit; scoring: +10 same color, +20 different color
+- Resurrection mechanic — leading player revives instead of dying
+- Invincibility frames on respawn (90 frames with flashing effect)
+- All graphics rendered with `pygame.draw` primitives (no external assets)
