@@ -1,0 +1,67 @@
+W, H = 640, 480
+TW, TH = 32, 16
+
+FPS = 40
+SPEED = 1.0
+
+BALL_SPEED_START = 250
+BALL_SPEED_MAX = 600
+BALL_ACCEL = 10
+BALL_ACCEL_INTERVAL = 5
+BALL_ACCEL_INTERVAL_SISSY = 10
+
+PADDLE_SMALL = 24
+PADDLE_MEDIUM = 48
+PADDLE_LONGER = 36
+PADDLE_LONGEST = PADDLE_MEDIUM + PADDLE_LONGER * 3
+
+ORIGIN_X = 64
+ORIGIN_Y = 48
+GRID_W = 24
+GRID_H = 36
+GAME_W = 20
+GAME_H = 30
+
+PILL_SPEED = 96
+LASER_SPEED = 900
+JUNK_SPEED_MIN = 30
+JUNK_SPEED_MAX = 60
+JUNK_MAX = 3
+JUNK_SPAWN_INTERVAL = 120
+JUNK_TYPES = ['sphere', 'pyramid', 'cubes']
+
+PILL_DROP_CHANCE = 30
+PILL_DROP_CHANCE_SISSY = 15
+
+PLAY_LEVELS = [0, 39, 21, 13, 5, 17, 6, 7, 29, 11, 1, 38, 30, 15, 2, 23, 4, 14, 9, 19, 18, 22, 3, 34]
+
+SCORE_BRICK = 11
+SCORE_PILL = 37
+SCORE_JUNK = 23
+SCORE_BALL_HIT = 3
+EXTRA_LIFE_SCORE = 20000
+
+LIVES = 3
+LIVES_SISSY = 5
+
+HS_ENTRIES = 5
+HS_FILES = ["hs_normal.sav", "hs_sissy.sav"]
+HS_DEFAULT = [(100, 'Cuzco'), (100, 'Phil'), (100, 'Nan'), (100, 'Tim'), (100, 'Jet')]
+
+COLOR_SCORE = (0, 230, 250)
+COLOR_PAUSE = (0, 230, 250)
+COLOR_TITLE = (0, 230, 250)
+COLOR_TEXT = (0, 184, 193)
+COLOR_BRIGHT = (178, 251, 255)
+COLOR_SHADOW = (0, 0, 0)
+COLOR_WHITE = (255, 255, 255)
+
+SFX_NAMES = ['bloop', 'bang', 'bew', 'blip', 'foghorn', 'hardmetal', 'hey', 'laser', 'metal', 'snap', 'tick', 'tink', 'woop', 'yipee']
+
+ASSET_DIR = "assets"
+IMAGE_DIR = f"{ASSET_DIR}/images"
+SFX_DIR = f"{ASSET_DIR}/sfx"
+LEVEL_DIR = f"{ASSET_DIR}/levels"
+FONT_PATH = f"{ASSET_DIR}/yellow.ttf"
+ALPHA_PATH = f"{ASSET_DIR}/alpha.txt"
+TILES_PATH = f"{ASSET_DIR}/images/tiles.png"
