@@ -8,7 +8,21 @@ from engine.sprite import Sprite
 from engine.collision import loop_tilehits, loop_spritehits
 
 def tile_death(level, tile_, sprite_):
-    pass
+    if hasattr(sprite_, 'killed'):
+        return
+    if sprite_.groups & level.groups.get('ball', 0):
+        level.balls -= 1
+        if level.balls <= 0:
+            for p in level.sprites:
+                if p.groups & level.groups.get('player', 0):
+                    from game.paddle import paddle_update_boom
+                    p.update = paddle_update_boom
+                    p.frame = 0
+                    level.listeners = {}
+    if sprite_.groups & level.groups.get('junk', 0):
+        level.junks -= 1
+    level.remove(sprite_)
+    sprite_.killed = 1
 
 def tile_block(level, tile_, sprite_):
     c = tile_.config
@@ -54,8 +68,11 @@ def block_explode(level, tile_):
     elif n == 8:
         pass
 
+    block_shadow(level, x, y)
+    block_shadow(level, x + 1, y)
+    block_shadow(level, x, y + 1)
+    block_shadow(level, x + 1, y + 1)
     level.score += SCORE_BRICK
-    level.blocks -= 1
 
 def block_shadow(level, x, y):
     if x < 0 or y < 0 or x >= level.w or y >= level.h:
@@ -305,8 +322,8 @@ class Level(Tilemap):
                 nn = next_tile[n]
                 if nn != n:
                     layer[y][x] = nn
-                    if layer[y][x] == 0:
-                        pass
+                    if nn == 0:
+                        self.blocks -= 1
 
         for y in range(self.h):
             for x in range(self.w):
