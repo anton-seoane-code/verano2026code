@@ -98,11 +98,11 @@ class Player:
 
         pts = []
         for i in range(3):
-            angle_deg = self.angle - 90 + 120 * i
+            angle_deg = self.angle + 120 * i
             rad = math.radians(angle_deg)
             r = self.size if i == 0 else self.size * 0.6
             pts.append((self.x + math.cos(rad) * r,
-                        self.y + math.sin(rad) * r))
+                        self.y - math.sin(rad) * r))
         pygame.draw.polygon(screen, self.color, pts)
         pygame.draw.polygon(screen, WHITE, pts, 1)
 

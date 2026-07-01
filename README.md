@@ -26,6 +26,7 @@
   - Title screen, game-over screen, configuration screen, HUD with scores and lives
   - 4 keyboard control schemes (arrows+RCTRL, WASD+SPACE, JIKL+P, numpad) + joystick auto-detect
   - All graphics rendered with `pygame.draw` primitives (original source links were dead)
+  - Ship triangle now points in direction of movement; bullets fire from tip
   - Dependencies: pygame
 
 ## 26/06
