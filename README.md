@@ -22,6 +22,7 @@
   - Ship-to-ship collision detection
   - JSON config save/load (`alien_conquer.cfg`)
   - Credits screen with auto-scrolling and speed control
+  - How to Play screen with full controls, scoring rules, power-up legend
   - Title screen, game-over screen, configuration screen, HUD with scores and lives
   - 4 keyboard control schemes (arrows+RCTRL, WASD+SPACE, JIKL+P, numpad) + joystick auto-detect
   - All graphics rendered with `pygame.draw` primitives (original source links were dead)
