@@ -69,6 +69,8 @@ class Game:
                 self._credits_screen()
             elif self.state == "config":
                 self._config_screen()
+            elif self.state == "how_to_play":
+                self._how_to_play_screen()
         pygame.quit()
 
     def _start_game(self, num_players, num_aliens):
@@ -246,7 +248,8 @@ class Game:
                             self.state = "playing"
                             return
                         elif self.selected_menu == 1:
-                            pass
+                            self.state = "how_to_play"
+                            return
                         elif self.selected_menu == 2:
                             self.state = "config"
                             return
@@ -362,6 +365,69 @@ class Game:
 
             if scroll < -len(credits) * 30:
                 scroll = SCREEN_HEIGHT
+
+            pygame.display.flip()
+            self.clock.tick(FPS)
+
+    def _how_to_play_screen(self):
+        lines = [
+            ("ALIEN CONQUER", (0, 255, 0)),
+            ("", WHITE),
+            ("GOAL: Be the last ship standing!", WHITE),
+            ("", WHITE),
+            ("SCORING", (255, 255, 0)),
+            ("  Hit an alien of YOUR color -> +10 points", WHITE),
+            ("  Hit an alien of a DIFFERENT color -> +20 points", WHITE),
+            ("  Aliens switch to your color when hit", WHITE),
+            ("", WHITE),
+            ("RESURRECTION", (255, 255, 0)),
+            ("  If you have the MOST points and get hit by", WHITE),
+            ("  an alien, you resurrect instead of dying!", WHITE),
+            ("", WHITE),
+            ("POWER-UPS", (255, 255, 0)),
+            ("  Blue diamond = Laser Cannon (rapid fire)", WHITE),
+            ("  Red square = Bullet Time (slow motion)", WHITE),
+            ("", WHITE),
+            ("HOW TO SHOOT", (255, 255, 0)),
+            ("  P1: Right Ctrl     P2: Space", WHITE),
+            ("  P3: P              P4: Numpad 0", WHITE),
+            ("", WHITE),
+            ("CONTROLS", (255, 255, 0)),
+            ("  P1: Arrow keys", WHITE),
+            ("  P2: W/A/S/D", WHITE),
+            ("  P3: I/J/K/L", WHITE),
+            ("  P4: Numpad 1/5/2/3", WHITE),
+            ("", WHITE),
+            ("Press ESC to return", GRAY),
+        ]
+        waiting = True
+        scroll_y = 0
+        while waiting and self.running:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    self.running = False
+                    return
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        waiting = False
+                        self.state = "title"
+                    elif event.key == pygame.K_UP:
+                        scroll_y = min(scroll_y + 20, 0)
+                    elif event.key == pygame.K_DOWN:
+                        scroll_y -= 20
+
+            self.screen.fill(BLACK)
+            y = 30 + scroll_y
+            for text, color in lines:
+                surf = self.font_small.render(text, True, color)
+                sr = surf.get_rect(topleft=(40, y))
+                self.screen.blit(surf, sr)
+                y += 24
+
+            hint = self.font_small.render(
+                "UP/DOWN to scroll | ESC to return", True, GRAY)
+            hr = hint.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT - 20))
+            self.screen.blit(hint, hr)
 
             pygame.display.flip()
             self.clock.tick(FPS)
