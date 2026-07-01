@@ -10,7 +10,7 @@ avoid walls and yourself!
 
 All notable changes to this project are documented below.
 
-### [1.0.0] — 2026-06-30
+### [1.0.0] — 2026-07-01
 
 #### Added
 - Initial project skeleton with directory structure
@@ -21,7 +21,7 @@ All notable changes to this project are documented below.
 - `constants.py` — game constants
 - `requirements.txt` — pygame dependency
 
-### [1.1.0] — 2026-06-30
+### [1.1.0] — 2026-07-01
 
 #### Added
 - Full `snake.py` implementation:
@@ -33,7 +33,7 @@ All notable changes to this project are documented below.
   - Head drawn with DARK_GREEN outline + GREEN fill + white eye
   - Body segments drawn as green rects with dark green border
 
-### [1.2.0] — 2026-06-30
+### [1.2.0] — 2026-07-01
 
 #### Added
 - Full `food.py` implementation:
@@ -41,7 +41,7 @@ All notable changes to this project are documented below.
   - `BlueBonus` — spawns briefly (120 frames), blinks when about to disappear, drawn as blue square with white center
   - Both avoid spawning on snake body
 
-### [1.3.0] — 2026-06-30
+### [1.3.0] — 2026-07-01
 
 #### Added
 - Full `game.py` implementation:
@@ -53,7 +53,7 @@ All notable changes to this project are documented below.
   - Score HUD (top-left) and high score display (top-right)
   - High score persistence via `snake_2006.high` file
 
-### [1.4.0] — 2026-06-30
+### [1.4.0] — 2026-07-01
 
 #### Added
 - Start screen with game instructions and high score display

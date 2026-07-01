@@ -10,7 +10,7 @@ collect power-ups, and outlast your opponents!
 
 All notable changes to this project are documented below.
 
-### [1.0.0] — 2026-06-30
+### [1.0.0] — 2026-07-01
 
 #### Added
 - Initial project release — full recreation of Alien Conquer by Taiua Pires

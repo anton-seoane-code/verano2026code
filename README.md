@@ -1,5 +1,5 @@
 # Report
-## 30/06
+## 01/07
 ### Projects:
 - [x] Snake 2006 `snake-2006/`
   - Classic Snake recreation by Cifa (pygame.org/project/433) from scratch
