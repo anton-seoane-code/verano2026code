@@ -93,8 +93,8 @@ class Level(Tilemap):
         self.listeners = {}
         self.groups = {}
         self.next_tile = []
-        self.clayer = None
         self.junks_cur = 0
+        self.frame = 0
 
     def string2groups(self, s):
         return self.list2groups(s.split(","))
@@ -134,17 +134,18 @@ class Level(Tilemap):
                 for x in range(min(len(vals), self.w)):
                     self.layers[3][y][x] = vals[x]
 
-        self.clayer = self.layers[3]
-        self.alayer3 = [row[:] for row in self.clayer]
-
     def init(self):
         l0 = [row[:] for row in self.layers[0]]
+        clayer_data = [row[:] for row in self.layers[3]]
+        orig_w, orig_h = self.w, self.h
         self.resize(GRID_W, GRID_H)
 
         for y in range(GAME_H):
             for x in range(GAME_W):
                 if y < len(l0) and x < len(l0[0]):
                     self.layers[0][y + 3][x + 2] = l0[y][x]
+                    if y < len(clayer_data) and x < len(clayer_data[0]):
+                        self.layers[3][y + 3][x + 2] = clayer_data[y][x]
 
         for x in range(self.w):
             self.layers[0][0][x] = 14
@@ -155,6 +156,8 @@ class Level(Tilemap):
         for y in range(self.h):
             self.layers[0][y][2] = 14
             self.layers[0][y][21] = 14
+
+        self.clayer = self.layers[3]
 
         self.origin.x = ORIGIN_X
         self.origin.y = ORIGIN_Y
@@ -255,6 +258,27 @@ class Level(Tilemap):
                 e.shape = Rect(0, 0, pimg.get_width(), pimg.get_height())
                 self.images[f"paddle.{p}.{w}"] = e
 
+    def start(self):
+        self.sprites = []
+        self.removed = []
+        self.listeners = {}
+
+        self.dead = 0
+        self.balls = 0
+        self.junks = 0
+        self.lasers = 0
+
+        from game.paddle import paddle_new, player_catch
+        from game.ball import ball_new
+        from constants import BALL_SPEED_START
+
+        p = paddle_new(self)
+        b = ball_new(self, p.cur.centerx, p.cur.top, BALL_SPEED_START)
+        b.cur.bottom = p.cur.top
+        b.y = float(b.cur.y)
+        b.vx, b.vy = 0.0, -float(BALL_SPEED_START)
+        player_catch(self, p, b)
+
     def sparkle(self):
         for y in range(self.h):
             for x in range(self.w):
@@ -263,6 +287,46 @@ class Level(Tilemap):
                     self.set(x, y, 32)
                 if n == 8:
                     self.set(x, y, 48)
+
+    def loop(self):
+        from engine.gameloop import loop_events, loop_spriteupdate, loop_delay
+        from engine.collision import loop_tilehits, loop_spritehits
+
+        loop_events(self)
+        loop_spriteupdate(self)
+        loop_tilehits(self)
+        loop_spritehits(self)
+
+        layer = self.layers[0]
+        next_tile = self.next_tile
+        for y in range(self.h):
+            for x in range(self.w):
+                n = layer[y][x]
+                nn = next_tile[n]
+                if nn != n:
+                    layer[y][x] = nn
+                    if layer[y][x] == 0:
+                        pass
+
+        for y in range(self.h):
+            for x in range(self.w):
+                if self.clayer and self.clayer[y][x] == -1:
+                    n = layer[y][x]
+                    t = self.tiles[n]
+                    if t and t.config.get('explode'):
+                        block_explode(self, t)
+                    elif t and t.config.get('enext'):
+                        self.set(x, y, t.config['enext'])
+                    self.clayer[y][x] = 0
+
+        loop_delay(self)
+
+        for s in self.sprites:
+            if s.cur.x != s.prev.x or s.cur.y != s.prev.y:
+                s.updated = 1
+        self.paint(self.screen)
+        pygame.display.flip()
+        self.frame += 1
 
 tiles = [(0, 0, 0) for _ in range(256)]
 
