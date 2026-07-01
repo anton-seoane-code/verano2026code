@@ -1,6 +1,7 @@
 import pygame
 from pygame.locals import *
 from pygame.rect import Rect
+from random import randrange
 
 from constants import *
 from engine.tilemap import Tilemap, Tile
@@ -59,6 +60,7 @@ def block_explode(level, tile_):
     x, y = tile_.tx, tile_.ty
     n = level.get(x, y)
     level.set(x, y, c.get('enext', 0))
+    level.clayer[y][x] = 0
 
     if n == 7:
         level.clayer[y - 1][x] = -1 if y > 0 else 0
@@ -67,6 +69,16 @@ def block_explode(level, tile_):
         level.clayer[y][x + 1] = -1 if x < level.w - 1 else 0
     elif n == 8:
         pass
+
+    if hasattr(level, 'sfx') and 'bang' in level.sfx:
+        level.sfx['bang'].play()
+
+    pill_chance = PILL_DROP_CHANCE
+    if level.sissy:
+        pill_chance = PILL_DROP_CHANCE_SISSY
+    if c.get('pill') and randrange(0, pill_chance) == 0:
+        from game.pill import pill_new
+        pill_new(level, x * TW, y * TH)
 
     block_shadow(level, x, y)
     block_shadow(level, x + 1, y)
@@ -112,6 +124,9 @@ class Level(Tilemap):
         self.next_tile = []
         self.junks_cur = 0
         self.frame = 0
+        self.sfx = {}
+        self._init_sfx()
+        self._sparkle_flag = 1
 
     def string2groups(self, s):
         return self.list2groups(s.split(","))
@@ -275,6 +290,16 @@ class Level(Tilemap):
                 e.shape = Rect(0, 0, pimg.get_width(), pimg.get_height())
                 self.images[f"paddle.{p}.{w}"] = e
 
+    def _init_sfx(self):
+        import os.path
+        for name in SFX_NAMES:
+            path = f"{SFX_DIR}/{name}.wav"
+            if os.path.exists(path):
+                self.sfx[name] = pygame.mixer.Sound(path)
+
+    def nextlevel(self):
+        pass
+
     def start(self):
         self.sprites = []
         self.removed = []
@@ -284,6 +309,7 @@ class Level(Tilemap):
         self.balls = 0
         self.junks = 0
         self.lasers = 0
+        self.blocks = sum(1 for y in range(self.h) for x in range(self.w) if self.tiles[self.get(x, y)] and self.tiles[self.get(x, y)].hit)
 
         from game.paddle import paddle_new, player_catch
         from game.ball import ball_new
@@ -308,6 +334,10 @@ class Level(Tilemap):
     def loop(self):
         from engine.gameloop import loop_events, loop_spriteupdate, loop_delay
         from engine.collision import loop_tilehits, loop_spritehits
+
+        if self._sparkle_flag:
+            self.sparkle()
+            self._sparkle_flag = 0
 
         loop_events(self)
         loop_spriteupdate(self)
@@ -335,6 +365,10 @@ class Level(Tilemap):
                     elif t and t.config.get('enext'):
                         self.set(x, y, t.config['enext'])
                     self.clayer[y][x] = 0
+
+        if self.junks < JUNK_MAX and (self.frame % JUNK_SPAWN_INTERVAL) == 0:
+            from game.junk import junk_new
+            junk_new(self)
 
         loop_delay(self)
 

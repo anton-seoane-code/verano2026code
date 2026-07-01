@@ -1,10 +1,10 @@
 # Report
 ## 01/07
 ### Projects:
-- [ ] Nannoid `nannoid/`
+- [x] Nannoid `nannoid/` (Commit 5: power-ups, lasers, junk, SFX)
   - Breakout clone with space graphics by Phil Hassey (2005), recreated from original source
   - 24 levels, tile-based rendering (32×16), 640×480 resolution
-  - Full game mechanics: ball physics, paddle types, 6 power-up pills, lasers, floating junk enemies
+  - Full game mechanics: ball physics, paddle types, 6 power-up pills (E/S/L/C/P/3), lasers, floating junk enemies + SFX sounds
   - All original sprite images, sound effects, and level files
   - Modern pygame 2.x codebase with modular architecture (engine/game/screens)
   - High score persistence via pickle

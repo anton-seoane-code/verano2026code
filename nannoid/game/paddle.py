@@ -133,7 +133,54 @@ def paddle_hit(level, a, b):
                 player_catch(level, a, b)
             level.hits = getattr(level, 'hits', 0) + 1
             level.score += SCORE_BALL_HIT
+            if hasattr(level, 'sfx') and 'snap' in level.sfx:
+                level.sfx['snap'].play()
         elif 'pill' in gl:
+            pdw = a.dw
+            a.dw = PADDLE_MEDIUM
+            if level.sissy:
+                a.dw += PADDLE_LONGER
+            a.catch = 0
+            a.laser = 0
+            a.cp = 'p'
+            level.score += SCORE_PILL
+
+            if b.type == 'e':
+                a.dw = min(PADDLE_LONGEST, pdw + PADDLE_LONGER)
+                a.cp = 'e'
+                if hasattr(level, 'sfx') and 'woop' in level.sfx:
+                    level.sfx['woop'].play()
+            elif b.type == 's':
+                bgroup = level.groups.get('ball', 0)
+                for s in level.sprites:
+                    if s.groups & bgroup:
+                        from game.ball import ball_speed
+                        ball_speed(level, s, BALL_SPEED_START)
+            elif b.type == '3':
+                bgroup = level.groups.get('ball', 0)
+                for s in level.sprites[:]:
+                    if s.groups & bgroup:
+                        from game.ball import ball_new
+                        ball_new(level, s.x, s.y, s.v)
+                        ball_new(level, s.x, s.y, s.v)
+                        break
+            elif b.type == 'l':
+                a.cp = 'l'
+                a.laser = 1
+            elif b.type == 'c':
+                a.cp = 'c'
+                a.catch = 1
+            elif b.type == 'w':
+                level.nextlevel()
+            elif b.type == 'p':
+                level.lives += 1
+
+            if pdw > a.dw:
+                if hasattr(level, 'sfx') and 'bew' in level.sfx:
+                    level.sfx['bew'].play()
+            elif hasattr(level, 'sfx') and 'blip' in level.sfx:
+                level.sfx['blip'].play()
+
             item_kill(level, a, b)
 
 def player_catch(level, a, b):
