@@ -1,4 +1,23 @@
 # Report
+## 02/07
+### Projects:
+- [x] Minecraft `minecraft/`
+  - 3D voxel world built with Three.js, inspired by Minecraft
+  - Procedural terrain generation: grass, dirt, stone layers with gentle hills
+  - Scattered trees with wood trunks and leaf canopies
+  - First-person controls: WASD movement, mouse look (pointer lock), Space to jump, Shift to sneak
+  - 7 block types in hotbar (keys 1-7): Grass, Dirt, Stone, Wood, Leaves, Sand, Cobble
+  - Left-click to break blocks, right-click to place blocks adjacent to targeted face
+  - InstancedMesh rendering with face culling for performance (~5000 block worlds)
+  - AABB collision detection for player movement (axis-separated)
+  - White outline highlight on targeted block
+  - Dynamic HUD: crosshair, block hotbar, debug coordinates
+  - Sunlight (directional + ambient + hemisphere lighting) with shadows
+  - Respawn if player falls out of world
+  - Audio: none (visual-only)
+  - No dependencies to install — open `minecraft/index.html` in any modern browser
+  - Runs over HTTP (use `python -m http.server` in project root)
+
 ## 01/07
 ### Projects:
 - [x] Nannoid `nannoid/` (Commit 5: power-ups, lasers, junk, SFX)
