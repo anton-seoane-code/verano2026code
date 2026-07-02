@@ -623,6 +623,7 @@ function initPointerLock() {
   document.addEventListener('pointerlockchange', function() {
     pointerLocked = document.pointerLockElement === renderer.domElement;
     blocker.style.display = pointerLocked ? 'none' : 'flex';
+    renderer.domElement.style.cursor = pointerLocked ? 'none' : '';
   });
 
   document.addEventListener('mousemove', function(e) {
