@@ -1,7 +1,7 @@
-// ═══════════════════════════════════════════════════════════════
-// Minecraft-style 3D voxel world — Three.js
-// ═══════════════════════════════════════════════════════════════
-import * as THREE from 'three';
+/* ═══════════════════════════════════════════════════════════════
+   Minecraft-style 3D voxel world — Three.js
+   Uses THREE global from script tag (works on file://)
+   ═══════════════════════════════════════════════════════════════ */
 
 // ─── Constants ────────────────────────────────────────────────
 const WORLD_RADIUS   = 20;         // world is -R .. +R on X and Z
@@ -33,35 +33,35 @@ const HOTBAR = [BT.GRASS, BT.DIRT, BT.STONE, BT.WOOD, BT.LEAVES, BT.SAND, BT.COB
 // ─── State ────────────────────────────────────────────────────
 const blocks = new Map();            // "x,y,z" → block-type
 const meshGroup = new THREE.Group(); // all visible block meshes
-const highlightMesh = new THREE.LineSegments(
+var highlightMesh = new THREE.LineSegments(
   new THREE.EdgesGeometry(new THREE.BoxGeometry(1.01, 1.01, 1.01)),
   new THREE.LineBasicMaterial({ color:0xffffff, transparent:true, opacity:0.4 }),
 );
 highlightMesh.visible = false;
 
-const player = {
+var player = {
   pos: new THREE.Vector3(0, 0, 0),
   vel: new THREE.Vector3(0, 0, 0),
   yaw: 0, pitch: 0,
   onGround: false,
 };
 
-const keys = new Set();              // currently-pressed key set
-let selectedSlot = 0;
-let pointerLocked = false;
+var keys = new Set();              // currently-pressed key set
+var selectedSlot = 0;
+var pointerLocked = false;
 
 // Three.js objects (set up in init)
-let scene, camera, renderer;
+var scene, camera, renderer;
+var dummyObj = new THREE.Object3D();
+var _v = new THREE.Vector3();
 
 // ─── Helpers ──────────────────────────────────────────────────
-const _v = new THREE.Vector3();
-
-function k(x, y, z) { return `${Math.floor(x)},${Math.floor(y)},${Math.floor(z)}`; }
+function k(x, y, z) { return Math.floor(x)+','+Math.floor(y)+','+Math.floor(z); }
 
 function getB(x, y, z) { return blocks.get(k(x, y, z)) || 0; }
 
 function setB(x, y, z, type) {
-  const key = k(x, y, z);
+  var key = k(x, y, z);
   if (type === 0) blocks.delete(key);
   else blocks.set(key, type);
 }
@@ -84,10 +84,10 @@ function terrainHeight(x, z) {
 
 function generateWorld() {
   // Ground layer
-  for (let x = -WORLD_RADIUS; x <= WORLD_RADIUS; x++) {
-    for (let z = -WORLD_RADIUS; z <= WORLD_RADIUS; z++) {
-      const h = terrainHeight(x, z);
-      for (let y = 0; y <= h; y++) {
+  for (var x = -WORLD_RADIUS; x <= WORLD_RADIUS; x++) {
+    for (var z = -WORLD_RADIUS; z <= WORLD_RADIUS; z++) {
+      var h = terrainHeight(x, z);
+      for (var y = 0; y <= h; y++) {
         if (y === h)           setB(x, y, z, BT.GRASS);
         else if (y > h - 3)    setB(x, y, z, BT.DIRT);
         else                   setB(x, y, z, BT.STONE);
@@ -96,24 +96,24 @@ function generateWorld() {
   }
 
   // Trees (scattered)
-  const treeCount = Math.floor((WORLD_RADIUS * 2) ** 2 * 0.008);
-  for (let t = 0; t < treeCount; t++) {
-    const tx = Math.floor(Math.random() * (WORLD_RADIUS * 2 - 8)) - WORLD_RADIUS + 4;
-    const tz = Math.floor(Math.random() * (WORLD_RADIUS * 2 - 8)) - WORLD_RADIUS + 4;
-    const th = terrainHeight(tx, tz);
+  var treeCount = Math.floor((WORLD_RADIUS * 2 + 1) * (WORLD_RADIUS * 2 + 1) * 0.008);
+  for (var t = 0; t < treeCount; t++) {
+    var tx = Math.floor(Math.random() * (WORLD_RADIUS * 2 - 8)) - WORLD_RADIUS + 4;
+    var tz = Math.floor(Math.random() * (WORLD_RADIUS * 2 - 8)) - WORLD_RADIUS + 4;
+    var th = terrainHeight(tx, tz);
 
     // Trunk 4 blocks tall
-    for (let y = th + 1; y <= th + 4; y++) setB(tx, y, tz, BT.WOOD);
+    for (var y = th + 1; y <= th + 4; y++) setB(tx, y, tz, BT.WOOD);
 
     // Canopy
-    for (let dx = -2; dx <= 2; dx++) {
-      for (let dz = -2; dz <= 2; dz++) {
-        const dist = Math.abs(dx) + Math.abs(dz);
+    for (var dx = -2; dx <= 2; dx++) {
+      for (var dz = -2; dz <= 2; dz++) {
+        var dist = Math.abs(dx) + Math.abs(dz);
         if (dist > 2 && Math.random() > 0.4) continue;
-        for (let dy = 0; dy <= 2; dy++) {
-          const ly = th + 4 + dy;
+        for (var dy = 0; dy <= 2; dy++) {
+          var ly = th + 4 + dy;
           if (ly > th + 6) continue;
-          if (dx === 0 && dz === 0 && dy === 2) continue; // leave top centre clear-ish
+          if (dx === 0 && dz === 0 && dy === 2) continue;
           setB(tx + dx, ly, tz + dz, BT.LEAVES);
         }
       }
@@ -128,41 +128,54 @@ function generateWorld() {
 
 // ─── Mesh building ───────────────────────────────────────────
 function rebuildMeshes() {
-  // Remove old children
+  // Remove old children and dispose resources
   while (meshGroup.children.length) {
-    const child = meshGroup.children[0];
-    child.geometry?.dispose();
-    child.material?.dispose();
+    var child = meshGroup.children[0];
+    if (child.geometry) child.geometry.dispose();
+    if (child.material) child.material.dispose();
     meshGroup.remove(child);
   }
 
-  // Pre-count visible blocks per type for InstancedMesh
-  const counts = {};
-  const positions = {};
-  for (const type of HOTBAR) { counts[type] = 0; positions[type] = []; }
+  // Pre-count visible blocks per type
+  var counts = {};
+  var positions = {};
+  for (var i = 0; i < HOTBAR.length; i++) {
+    counts[HOTBAR[i]] = 0;
+    positions[HOTBAR[i]] = [];
+  }
 
   // First pass: count visible blocks
-  for (const [key, type] of blocks) {
-    if (!HOTBAR.includes(type)) continue;
-    const [x, y, z] = key.split(',').map(Number);
+  var iter = blocks.entries();
+  for (var entry = iter.next(); !entry.done; entry = iter.next()) {
+    var key = entry.value[0];
+    var type = entry.value[1];
+    if (!(type in counts)) continue;
+    var parts = key.split(',');
+    var x = parseInt(parts[0], 10);
+    var y = parseInt(parts[1], 10);
+    var z = parseInt(parts[2], 10);
+    // Face culling: skip if completely surrounded
     if (isSolid(x-1,y,z) && isSolid(x+1,y,z) && isSolid(x,y-1,z) &&
-        isSolid(x,y,z-1) && isSolid(x,y,z+1)) continue; // fully buried
+        isSolid(x,y,z-1) && isSolid(x,y,z+1)) continue;
     counts[type] = (counts[type] || 0) + 1;
-    (positions[type] = positions[type] || []).push({ x, y, z });
+    (positions[type] || (positions[type] = [])).push({ x:x, y:y, z:z });
   }
 
   // Second pass: create InstancedMesh for each type
-  const geo = new THREE.BoxGeometry(1, 1, 1);
-  const dummy = new THREE.Object3D();
+  var geo = new THREE.BoxGeometry(1, 1, 1);
+  var dummy = new THREE.Object3D();
 
-  for (const type of HOTBAR) {
-    const cnt = counts[type] || 0;
+  for (var i = 0; i < HOTBAR.length; i++) {
+    var type = HOTBAR[i];
+    var cnt = counts[type] || 0;
     if (cnt === 0) continue;
-    const info = BLOCK_INFO[type];
-    const mat = new THREE.MeshLambertMaterial({ color: info.color });
-    const im = new THREE.InstancedMesh(geo, mat, cnt);
-    let idx = 0;
-    for (const p of (positions[type] || [])) {
+    var info = BLOCK_INFO[type];
+    var mat = new THREE.MeshLambertMaterial({ color: info.color });
+    var im = new THREE.InstancedMesh(geo, mat, cnt);
+    var idx = 0;
+    var list = positions[type] || [];
+    for (var j = 0; j < list.length; j++) {
+      var p = list[j];
       dummy.position.set(p.x + 0.5, p.y + 0.5, p.z + 0.5);
       dummy.updateMatrix();
       im.setMatrixAt(idx++, dummy.matrix);
@@ -176,27 +189,23 @@ function rebuildMeshes() {
 }
 
 // ─── Raycaster helpers ────────────────────────────────────────
-const _ray = new THREE.Raycaster();
-
 function intersectBlocks() {
-  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
-  _ray.set(camera.position, dir);
-  _ray.far = REACH;
-  _ray.firstHitOnly = true;
+  var dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
+  var ray = new THREE.Raycaster(camera.position, dir, 0, REACH);
+  ray.firstHitOnly = true;
 
-  const hits = _ray.intersectObjects(meshGroup.children, false);
+  var hits = ray.intersectObjects(meshGroup.children, false);
   if (hits.length === 0) return null;
 
-  const hit = hits[0];
+  var hit = hits[0];
 
   // Recover block position from InstancedMesh
   if (hit.object.isInstancedMesh && hit.instanceId !== undefined) {
-    dummyObj.getWorldPosition(_v);
     hit.object.getMatrixAt(hit.instanceId, dummyObj.matrix);
     dummyObj.matrix.decompose(_v, dummyObj.quaternion, dummyObj.scale);
-    const bx = Math.floor(_v.x - 0.5);
-    const by = Math.floor(_v.y - 0.5);
-    const bz = Math.floor(_v.z - 0.5);
+    var bx = Math.floor(_v.x - 0.5);
+    var by = Math.floor(_v.y - 0.5);
+    var bz = Math.floor(_v.z - 0.5);
     return {
       x: bx, y: by, z: bz,
       type: getB(bx, by, bz),
@@ -206,27 +215,24 @@ function intersectBlocks() {
   return null;
 }
 
-const dummyObj = new THREE.Object3D();
-
 // ─── Block breaking / placing ────────────────────────────────
 function breakBlock() {
-  const t = intersectBlocks();
+  var t = intersectBlocks();
   if (!t) return;
   setB(t.x, t.y, t.z, 0);
   rebuildMeshes();
 }
 
 function placeBlock() {
-  const t = intersectBlocks();
+  var t = intersectBlocks();
   if (!t) return;
-  const px = t.x + t.normal.x;
-  const py = t.y + t.normal.y;
-  const pz = t.z + t.normal.z;
+  var px = t.x + t.normal.x;
+  var py = t.y + t.normal.y;
+  var pz = t.z + t.normal.z;
 
   // Don't place inside player
-  const pp = blockKey(camera.position);
+  var pp = blockKey(camera.position);
   if (px === pp.x && py === pp.y && pz === pp.z) return;
-  // Or inside player's head
   if (px === pp.x && py === pp.y + 1 && pz === pp.z) return;
 
   if (!isSolid(px, py, pz)) {
@@ -237,17 +243,17 @@ function placeBlock() {
 
 // ─── Pointer lock ────────────────────────────────────────────
 function initPointerLock() {
-  const blocker = document.getElementById('blocker');
-  blocker.addEventListener('click', () => {
+  var blocker = document.getElementById('blocker');
+  blocker.addEventListener('click', function() {
     renderer.domElement.requestPointerLock();
   });
 
-  document.addEventListener('pointerlockchange', () => {
+  document.addEventListener('pointerlockchange', function() {
     pointerLocked = document.pointerLockElement === renderer.domElement;
     blocker.style.display = pointerLocked ? 'none' : 'flex';
   });
 
-  document.addEventListener('mousemove', (e) => {
+  document.addEventListener('mousemove', function(e) {
     if (!pointerLocked) return;
     player.yaw   -= e.movementX * 0.002;
     player.pitch -= e.movementY * 0.002;
@@ -257,14 +263,14 @@ function initPointerLock() {
 
 // ─── Keyboard ────────────────────────────────────────────────
 function initKeyboard() {
-  document.addEventListener('keydown', (e) => {
+  document.addEventListener('keydown', function(e) {
     keys.add(e.code);
     if (e.code.startsWith('Digit') && !e.repeat) {
-      const n = parseInt(e.code[5], 10);
+      var n = parseInt(e.code.charAt(5), 10);
       if (n >= 1 && n <= HOTBAR.length) { selectedSlot = n - 1; updateHotbar(); }
     }
   });
-  document.addEventListener('keyup', (e) => keys.delete(e.code));
+  document.addEventListener('keyup', function(e) { keys.delete(e.code); });
 }
 
 // ─── Player movement (per frame) ─────────────────────────────
@@ -275,21 +281,21 @@ function updatePlayer(dt) {
   dt = Math.min(dt, 0.05);
 
   // Movement direction (XZ plane, relative to yaw)
-  const forward = new THREE.Vector3(-Math.sin(player.yaw), 0, -Math.cos(player.yaw));
-  const right   = new THREE.Vector3( Math.cos(player.yaw), 0, -Math.sin(player.yaw));
+  var forward = new THREE.Vector3(-Math.sin(player.yaw), 0, -Math.cos(player.yaw));
+  var right   = new THREE.Vector3( Math.cos(player.yaw), 0, -Math.sin(player.yaw));
 
-  const move = new THREE.Vector3();
+  var move = new THREE.Vector3();
   if (keys.has('KeyW') || keys.has('ArrowUp'))    move.add(forward);
   if (keys.has('KeyS') || keys.has('ArrowDown'))   move.sub(forward);
   if (keys.has('KeyA') || keys.has('ArrowLeft'))   move.sub(right);
   if (keys.has('KeyD') || keys.has('ArrowRight'))  move.add(right);
   if (move.lengthSq() > 0) move.normalize();
 
-  const speed = keys.has('ShiftLeft') || keys.has('ShiftRight') ? SNEAK_SPEED : WALK_SPEED;
+  var speed = (keys.has('ShiftLeft') || keys.has('ShiftRight')) ? SNEAK_SPEED : WALK_SPEED;
   move.multiplyScalar(speed * dt);
 
   // Jump
-  if ((keys.has('Space')) && player.onGround) {
+  if (keys.has('Space') && player.onGround) {
     player.vel.y = JUMP_SPEED;
     player.onGround = false;
   }
@@ -298,19 +304,19 @@ function updatePlayer(dt) {
   player.vel.y += GRAVITY * dt;
 
   // ── Collision (axis-separated) ──
-  const pos = player.pos;
-  const r = PLAYER_RADIUS;
-  const h = PLAYER_HEIGHT;
+  var pos = player.pos;
+  var r = PLAYER_RADIUS;
+  var h = PLAYER_HEIGHT;
 
   // Helper: AABB overlap test against world blocks
   function collide(px, py, pz) {
-    const minX = Math.floor(px - r), maxX = Math.floor(px + r);
-    const minY = Math.floor(py),     maxY = Math.floor(py + h);
-    const minZ = Math.floor(pz - r), maxZ = Math.floor(pz + r);
-    for (let x = minX; x <= maxX; x++) {
-      for (let y = minY; y <= maxY; y++) {
-        for (let z = minZ; z <= maxZ; z++) {
-          if (isSolid(x, y, z)) return true;
+    var minX = Math.floor(px - r), maxX = Math.floor(px + r);
+    var minY = Math.floor(py),     maxY = Math.floor(py + h);
+    var minZ = Math.floor(pz - r), maxZ = Math.floor(pz + r);
+    for (var cx = minX; cx <= maxX; cx++) {
+      for (var cy = minY; cy <= maxY; cy++) {
+        for (var cz = minZ; cz <= maxZ; cz++) {
+          if (isSolid(cx, cy, cz)) return true;
         }
       }
     }
@@ -318,15 +324,15 @@ function updatePlayer(dt) {
   }
 
   // Try X
-  const nx = pos.x + move.x;
+  var nx = pos.x + move.x;
   if (!collide(nx, pos.y, pos.z)) pos.x = nx;
 
   // Try Z
-  const nz = pos.z + move.z;
+  var nz = pos.z + move.z;
   if (!collide(pos.x, pos.y, nz)) pos.z = nz;
 
   // Try Y (gravity + jump)
-  const ny = pos.y + player.vel.y * dt;
+  var ny = pos.y + player.vel.y * dt;
   if (!collide(pos.x, ny, pos.z)) {
     pos.y = ny;
     player.onGround = false;
@@ -337,8 +343,7 @@ function updatePlayer(dt) {
 
   // Don't fall below world
   if (pos.y < -10) {
-    // Respawn at spawn point
-    const sh = terrainHeight(0, 0);
+    var sh = terrainHeight(0, 0);
     pos.set(0, sh + 3, 0);
     player.vel.set(0, 0, 0);
   }
@@ -346,17 +351,14 @@ function updatePlayer(dt) {
 
 // ─── Camera ──────────────────────────────────────────────────
 function updateCamera() {
-  // Camera at eye level
   camera.position.set(player.pos.x, player.pos.y + PLAYER_HEIGHT, player.pos.z);
-
-  // Apply yaw + pitch
-  const euler = new THREE.Euler(player.pitch, player.yaw, 0, 'YXZ');
+  var euler = new THREE.Euler(player.pitch, player.yaw, 0, 'YXZ');
   camera.quaternion.setFromEuler(euler);
 }
 
 // ─── Highlight ───────────────────────────────────────────────
 function updateHighlight() {
-  const t = intersectBlocks();
+  var t = intersectBlocks();
   if (t) {
     highlightMesh.position.set(t.x + 0.5, t.y + 0.5, t.z + 0.5);
     highlightMesh.visible = true;
@@ -367,72 +369,74 @@ function updateHighlight() {
 
 // ─── UI ──────────────────────────────────────────────────────
 function buildHotbar() {
-  const el = document.getElementById('hotbar');
+  var el = document.getElementById('hotbar');
   el.innerHTML = '';
-  HOTBAR.forEach((type, i) => {
-    const info = BLOCK_INFO[type];
-    const slot = document.createElement('div');
+  for (var i = 0; i < HOTBAR.length; i++) {
+    var type = HOTBAR[i];
+    var info = BLOCK_INFO[type];
+    var slot = document.createElement('div');
     slot.className = 'slot' + (i === selectedSlot ? ' active' : '');
     slot.dataset.index = i;
 
-    const keyLbl = document.createElement('span');
+    var keyLbl = document.createElement('span');
     keyLbl.className = 'key-label';
-    keyLbl.textContent = i + 1;
+    keyLbl.textContent = '' + (i + 1);
     slot.appendChild(keyLbl);
 
-    const preview = document.createElement('div');
+    var preview = document.createElement('div');
     preview.className = 'block-preview';
-    preview.style.background = '#' + info.color.toString(16).padStart(6, '0');
+    var hex = info.color.toString(16);
+    while (hex.length < 6) hex = '0' + hex;
+    preview.style.background = '#' + hex;
     slot.appendChild(preview);
 
-    const nameLbl = document.createElement('span');
+    var nameLbl = document.createElement('span');
     nameLbl.className = 'slot-name';
     nameLbl.textContent = info.name;
     slot.appendChild(nameLbl);
 
-    // Click to select
-    slot.addEventListener('click', () => {
-      selectedSlot = i;
-      updateHotbar();
-    });
+    slot.addEventListener('click', (function(idx) {
+      return function() { selectedSlot = idx; updateHotbar(); };
+    })(i));
 
     el.appendChild(slot);
-  });
+  }
 }
 
 function updateHotbar() {
-  const slots = document.querySelectorAll('.slot');
-  slots.forEach((s, i) => s.classList.toggle('active', i === selectedSlot));
+  var slots = document.querySelectorAll('.slot');
+  for (var i = 0; i < slots.length; i++) {
+    slots[i].classList.toggle('active', i === selectedSlot);
+  }
 }
-
-const debugEl = document.getElementById('debug');
 
 function updateDebug() {
-  const p = player.pos;
-  debugEl.textContent =
-    `XYZ: ${p.x.toFixed(1)} / ${p.y.toFixed(1)} / ${p.z.toFixed(1)}  |  ` +
-    `Blocks: ${blocks.size}  |  ` +
-    `Meshes: ${meshGroup.children.length}`;
+  var el = document.getElementById('debug');
+  if (!el) return;
+  var p = player.pos;
+  el.textContent =
+    'XYZ: ' + p.x.toFixed(1) + ' / ' + p.y.toFixed(1) + ' / ' + p.z.toFixed(1) +
+    '  |  Blocks: ' + blocks.size +
+    '  |  Meshes: ' + meshGroup.children.length;
 }
 
-// ─── Mouse events (from outside pointer lock) ────────────────
+// ─── Mouse events ────────────────────────────────────────────
 function initMouseActions() {
-  renderer.domElement.addEventListener('mousedown', (e) => {
+  renderer.domElement.addEventListener('mousedown', function(e) {
     if (!pointerLocked) return;
-    if (e.button === 0) breakBlock();   // left
-    if (e.button === 2) placeBlock();   // right
+    if (e.button === 0) breakBlock();
+    if (e.button === 2) placeBlock();
   });
-  renderer.domElement.addEventListener('contextmenu', (e) => e.preventDefault());
+  renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 }
 
 // ─── Init ────────────────────────────────────────────────────
 function init() {
   scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x87ceeb); // sky blue
+  scene.background = new THREE.Color(0x87ceeb);
   scene.fog = new THREE.Fog(0x87ceeb, 50, 80);
 
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
-  camera.position.set(0, 0, 0);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
@@ -442,10 +446,10 @@ function init() {
   document.body.prepend(renderer.domElement);
 
   // Lights
-  const ambient = new THREE.AmbientLight(0x6688aa, 0.6);
+  var ambient = new THREE.AmbientLight(0x6688aa, 0.6);
   scene.add(ambient);
 
-  const sun = new THREE.DirectionalLight(0xffeedd, 1.4);
+  var sun = new THREE.DirectionalLight(0xffeedd, 1.4);
   sun.position.set(50, 80, 30);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
@@ -457,20 +461,17 @@ function init() {
   sun.shadow.camera.bottom = -60;
   scene.add(sun);
 
-  const hemi = new THREE.HemisphereLight(0x87ceeb, 0x3a4a2e, 0.3);
+  var hemi = new THREE.HemisphereLight(0x87ceeb, 0x3a4a2e, 0.3);
   scene.add(hemi);
 
-  // Highlight overlay
   scene.add(highlightMesh);
-
-  // Ground grid — decorative, not essential
   scene.add(meshGroup);
 
   // Generate world
   generateWorld();
 
   // Place player above terrain centre
-  const sh = terrainHeight(0, 0);
+  var sh = terrainHeight(0, 0);
   player.pos.set(0, sh + 3, 0);
 
   // Events
@@ -480,21 +481,25 @@ function init() {
   buildHotbar();
 
   // Resize
-  window.addEventListener('resize', () => {
+  window.addEventListener('resize', function() {
     camera.aspect = window.innerWidth / window.innerHeight;
     camera.updateProjectionMatrix();
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  debugEl.textContent = 'Ready — click to play';
+  var debugEl = document.getElementById('debug');
+  if (debugEl) debugEl.textContent = 'Ready - click to play';
+
+  // Kick off the game loop
+  animate(performance.now());
 }
 
 // ─── Game loop ────────────────────────────────────────────────
-let prevTime = performance.now();
+var prevTime = performance.now();
 
 function animate(time) {
   requestAnimationFrame(animate);
-  const dt = (time - prevTime) / 1000;
+  var dt = (time - prevTime) / 1000;
   prevTime = time;
 
   updatePlayer(dt);
@@ -507,4 +512,3 @@ function animate(time) {
 
 // ─── Go ──────────────────────────────────────────────────────
 init();
-animate(performance.now());

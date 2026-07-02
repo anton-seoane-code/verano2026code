@@ -142,21 +142,11 @@
 
   <!-- HUD -->
   <div id="crosshair">+</div>
-
   <div id="hotbar"></div>
-
   <div id="debug">Loading...</div>
 
-  <!-- Three.js import map -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-    }
-  }
-  </script>
-
-  <script type="module" src="game.js"></script>
+  <!-- Three.js via CDN (works from file:// and over HTTP) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="game.js"></script>
 </body>
 </html>
