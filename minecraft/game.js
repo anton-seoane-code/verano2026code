@@ -72,6 +72,7 @@ function applyQuality(tier) {
       pixelRatio:    1,
       antialias:     false,
       treeDensity:   0.003,
+      mobCount:      3,
     },
     medium: {
       worldRadius:   16,
@@ -81,6 +82,7 @@ function applyQuality(tier) {
       pixelRatio:    1,
       antialias:     true,
       treeDensity:   0.005,
+      mobCount:      6,
     },
     high: {
       worldRadius:   20,
@@ -90,6 +92,7 @@ function applyQuality(tier) {
       pixelRatio:    1.5,
       antialias:     true,
       treeDensity:   0.008,
+      mobCount:      10,
     },
     ultra: {
       worldRadius:   28,
@@ -99,6 +102,7 @@ function applyQuality(tier) {
       pixelRatio:    Math.min(window.devicePixelRatio || 1, 2),
       antialias:     true,
       treeDensity:   0.012,
+      mobCount:      15,
     },
   };
 
@@ -188,6 +192,11 @@ if (sensParam !== null) {
 var scene, camera, renderer;
 var dummyObj = new THREE.Object3D();
 var _v = new THREE.Vector3();
+
+// Mobs
+var mobs = [];
+var mobsGroup = new THREE.Group();
+var MOB_COUNT = QUALITY.mobCount;
 
 // ╔══════════════════════════════════════════════════════════════╗
 // ║  Helpers                                                    ║
@@ -328,6 +337,223 @@ function rebuildMeshes() {
 }
 
 // ╔══════════════════════════════════════════════════════════════╗
+// ║  Friendly mobs (NPC villagers)                              ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+// Terrain height from block data (accounts for player modifications)
+function getGroundHeight(x, z) {
+  var bx = Math.floor(x), bz = Math.floor(z);
+  for (var y = 25; y >= -1; y--) {
+    if (isSolid(bx, y, bz)) return y + 1;
+  }
+  return 0;
+}
+
+// Check if a position is walkable for a mob
+function isWalkable(x, z) {
+  var bx = Math.floor(x), bz = Math.floor(z);
+  if (Math.abs(bx) >= WORLD_RADIUS || Math.abs(bz) >= WORLD_RADIUS) return false;
+  var ground = getGroundHeight(x, z);
+  if (ground <= 0 || ground > 20) return false;
+  // Check body space: need 2 blocks clear above ground
+  for (var y = Math.floor(ground); y < Math.floor(ground) + 2; y++) {
+    if (isSolid(bx, y, bz)) return false;
+  }
+  return true;
+}
+
+// Find a random valid spawn position
+function findMobSpawn() {
+  for (var attempt = 0; attempt < 50; attempt++) {
+    var x = Math.floor(Math.random() * (WORLD_RADIUS * 2 - 8)) - WORLD_RADIUS + 4;
+    var z = Math.floor(Math.random() * (WORLD_RADIUS * 2 - 8)) - WORLD_RADIUS + 4;
+    if (isWalkable(x, z)) return { x: x, z: z };
+  }
+  return null;
+}
+
+function createMob(x, z) {
+  var ground = getGroundHeight(x, z);
+
+  // Materials
+  var skinMat  = new THREE.MeshLambertMaterial({ color: 0xe8b88a });
+  var shirtMat = new THREE.MeshLambertMaterial({ color: 0x4a86c8 });
+  var pantsMat = new THREE.MeshLambertMaterial({ color: 0x3a3a5a });
+
+  var skinColors = [0xe8b88a, 0xd4a574, 0xc4956a, 0xf0caa8, 0xdeb887];
+  var shirtColors = [0x4a86c8, 0xe74c3c, 0x2ecc71, 0xf39c12, 0x9b59b6, 0x1abc9c];
+  skinMat.color.setHex(skinColors[Math.floor(Math.random() * skinColors.length)]);
+  shirtMat.color.setHex(shirtColors[Math.floor(Math.random() * shirtColors.length)]);
+
+  var group = new THREE.Group();
+
+  // Head
+  var head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), skinMat);
+  head.position.y = 1.4;
+  group.add(head);
+
+  // Eyes (two small dark dots)
+  var eyeMat = new THREE.MeshLambertMaterial({ color: 0x222222 });
+  var eyeGeo = new THREE.BoxGeometry(0.08, 0.08, 0.05);
+  var eyeL = new THREE.Mesh(eyeGeo, eyeMat);
+  eyeL.position.set(-0.15, 1.45, -0.3);
+  group.add(eyeL);
+  var eyeR = new THREE.Mesh(eyeGeo, eyeMat);
+  eyeR.position.set(0.15, 1.45, -0.3);
+  group.add(eyeR);
+
+  // Body / torso
+  var body = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.7, 0.35), shirtMat);
+  body.position.y = 0.85;
+  group.add(body);
+
+  // Arms
+  var armGeo = new THREE.BoxGeometry(0.18, 0.6, 0.18);
+  var leftArm = new THREE.Mesh(armGeo, skinMat);
+  leftArm.position.set(-0.44, 0.8, 0);
+  group.add(leftArm);
+
+  var rightArm = new THREE.Mesh(armGeo, skinMat);
+  rightArm.position.set(0.44, 0.8, 0);
+  group.add(rightArm);
+
+  // Legs
+  var legGeo = new THREE.BoxGeometry(0.22, 0.5, 0.22);
+  var leftLeg = new THREE.Mesh(legGeo, pantsMat);
+  leftLeg.position.set(-0.15, 0.3, 0);
+  group.add(leftLeg);
+
+  var rightLeg = new THREE.Mesh(legGeo, pantsMat);
+  rightLeg.position.set(0.15, 0.3, 0);
+  group.add(rightLeg);
+
+  group.position.set(x, ground, z);
+  group.castShadow = true;
+
+  return {
+    group: group,
+    head: head, body: body,
+    leftArm: leftArm, rightArm: rightArm,
+    leftLeg: leftLeg, rightLeg: rightLeg,
+    pos: { x: x, y: ground, z: z },
+    dir: Math.random() * Math.PI * 2,
+    speed: 0.8 + Math.random() * 0.6,
+    state: 'idle',
+    idleTimer: 1 + Math.random() * 4,
+    walkTimer: 0,
+    animTimer: Math.random() * 10,
+    stuckCheck: { x: x, z: z, age: 0 },
+  };
+}
+
+function spawnMobs() {
+  // Clear any existing mobs from a quality hot-swap
+  while (mobsGroup.children.length) {
+    var child = mobsGroup.children[0];
+    if (child.geometry) child.geometry.dispose();
+    if (child.material) child.material.dispose();
+    mobsGroup.remove(child);
+  }
+  mobs = [];
+
+  for (var i = 0; i < MOB_COUNT; i++) {
+    var spawn = findMobSpawn();
+    if (!spawn) continue;
+    var mob = createMob(spawn.x, spawn.z);
+    mobs.push(mob);
+    mobsGroup.add(mob.group);
+  }
+}
+
+function updateMobs(dt) {
+  dt = Math.min(dt, 0.05);
+
+  for (var i = 0; i < mobs.length; i++) {
+    var mob = mobs[i];
+    mob.animTimer += dt;
+
+    if (mob.state === 'idle') {
+      mob.idleTimer -= dt;
+      // Gentle idle sway
+      mob.leftArm.rotation.x  = Math.sin(mob.animTimer * 1.5) * 0.06;
+      mob.rightArm.rotation.x = Math.sin(mob.animTimer * 1.5 + Math.PI) * 0.06;
+      mob.leftLeg.rotation.x  = 0;
+      mob.rightLeg.rotation.x = 0;
+
+      if (mob.idleTimer <= 0) {
+        // Pick a new random direction
+        mob.dir = (Math.random() * 2 - 1) * Math.PI;
+        mob.walkTimer = 1.5 + Math.random() * 4;
+        mob.state = 'walk';
+        mob.stuckCheck.x = mob.pos.x;
+        mob.stuckCheck.z = mob.pos.z;
+        mob.stuckCheck.age = 0;
+      }
+    } else if (mob.state === 'walk') {
+      // Calculate movement
+      var dx = Math.sin(mob.dir) * mob.speed * dt;
+      var dz = Math.cos(mob.dir) * mob.speed * dt;
+      var nx = mob.pos.x + dx;
+      var nz = mob.pos.z + dz;
+
+      // Check if the new spot is walkable
+      if (isWalkable(nx, nz)) {
+        var gnd = getGroundHeight(nx, nz);
+        mob.pos.x = nx;
+        mob.pos.z = nz;
+        mob.pos.y = gnd;
+      } else {
+        // Turn away from obstacle
+        mob.dir = mob.dir + Math.PI * (0.6 + Math.random() * 0.8);
+      }
+
+      mob.walkTimer -= dt;
+
+      // Stuck detection: haven't moved enough in ~2 seconds
+      mob.stuckCheck.age += dt;
+      if (mob.stuckCheck.age > 2) {
+        var dist = Math.sqrt(
+          (mob.pos.x - mob.stuckCheck.x) * (mob.pos.x - mob.stuckCheck.x) +
+          (mob.pos.z - mob.stuckCheck.z) * (mob.pos.z - mob.stuckCheck.z)
+        );
+        if (dist < 0.5) {
+          mob.dir += Math.PI * 0.8;
+          mob.walkTimer = Math.min(mob.walkTimer, 1);
+        }
+        mob.stuckCheck.x = mob.pos.x;
+        mob.stuckCheck.z = mob.pos.z;
+        mob.stuckCheck.age = 0;
+      }
+
+      // Walking animation: swing arms and legs
+      var swing = Math.sin(mob.animTimer * 7) * 0.6;
+      mob.leftArm.rotation.x  = swing;
+      mob.rightArm.rotation.x = -swing;
+      mob.leftLeg.rotation.x  = -swing * 0.7;
+      mob.rightLeg.rotation.x = swing * 0.7;
+
+      if (mob.walkTimer <= 0) {
+        mob.idleTimer = 0.8 + Math.random() * 3;
+        mob.state = 'idle';
+      }
+    }
+
+    // Update group position and rotation
+    mob.group.position.set(mob.pos.x, mob.pos.y, mob.pos.z);
+
+    // Smoothly face direction of travel
+    if (mob.state === 'walk') {
+      var targetYaw = mob.dir;
+      var currentYaw = mob.group.rotation.y;
+      var diff = targetYaw - currentYaw;
+      while (diff > Math.PI) diff -= Math.PI * 2;
+      while (diff < -Math.PI) diff += Math.PI * 2;
+      mob.group.rotation.y += diff * Math.min(1, dt * 6);
+    }
+  }
+}
+
+// ╔══════════════════════════════════════════════════════════════╗
 // ║  Raycaster                                                  ║
 // ╚══════════════════════════════════════════════════════════════╝
 
@@ -428,8 +654,10 @@ function initKeyboard() {
       console.log('[Quality] Hot-swap to ' + next);
       applyQuality(next);
       WORLD_RADIUS = QUALITY.worldRadius;
+      MOB_COUNT = QUALITY.mobCount;
       blocks.clear();
       generateWorld();
+      spawnMobs();
     }
 
     // Mouse sensitivity: [ decrease, ] increase
@@ -595,6 +823,7 @@ function updateDebug() {
   el.innerHTML =
     'XYZ: ' + p.x.toFixed(1) + ' / ' + p.y.toFixed(1) + ' / ' + p.z.toFixed(1) +
     '  |  Blocks: ' + blocks.size +
+    '  |  Mobs: ' + mobs.length +
     '  |  Meshes: ' + meshGroup.children.length +
     '  |  <span style="color:#5cdb5c">' + QUALITY.tier + '</span>' +
     '  |  Sens: <span id="sens-val">' + sensMult + 'x</span>';
@@ -689,9 +918,13 @@ function init() {
 
   scene.add(highlightMesh);
   scene.add(meshGroup);
+  scene.add(mobsGroup);
 
   // Generate world
   generateWorld();
+
+  // Spawn friendly mobs
+  spawnMobs();
 
   // Place player above terrain centre
   var sh = terrainHeight(0, 0);
@@ -733,6 +966,7 @@ function animate(time) {
   prevTime = time;
 
   updatePlayer(dt);
+  updateMobs(dt);
   updateCamera();
   updateHighlight();
   updateDebug();
