@@ -167,6 +167,24 @@ var player = {
 var keys = new Set();
 var selectedSlot = 0;
 var pointerLocked = false;
+
+// Mouse sensitivity — loaded from localStorage or URL param
+var BASE_SENSITIVITY = 0.002;     // default baseline
+var mouseSensitivity = BASE_SENSITIVITY;
+
+// Load saved sensitivity
+var saved = localStorage.getItem('mc_sensitivity');
+if (saved !== null) {
+  var parsed = parseFloat(saved);
+  if (parsed >= 0.0005 && parsed <= 0.01) mouseSensitivity = parsed;
+}
+// URL param override: ?sensitivity=0.5  (multiplier relative to baseline)
+var sensParam = new URLSearchParams(window.location.search).get('sensitivity');
+if (sensParam !== null) {
+  var mult = parseFloat(sensParam);
+  if (mult >= 0.1 && mult <= 5) mouseSensitivity = BASE_SENSITIVITY * mult;
+}
+
 var scene, camera, renderer;
 var dummyObj = new THREE.Object3D();
 var _v = new THREE.Vector3();
@@ -383,8 +401,8 @@ function initPointerLock() {
 
   document.addEventListener('mousemove', function(e) {
     if (!pointerLocked) return;
-    player.yaw   -= e.movementX * 0.002;
-    player.pitch -= e.movementY * 0.002;
+    player.yaw   -= e.movementX * mouseSensitivity;
+    player.pitch -= e.movementY * mouseSensitivity;
     player.pitch = Math.max(-Math.PI / 2.2, Math.min(Math.PI / 2.2, player.pitch));
   });
 }
@@ -412,6 +430,20 @@ function initKeyboard() {
       WORLD_RADIUS = QUALITY.worldRadius;
       blocks.clear();
       generateWorld();
+    }
+
+    // Mouse sensitivity: [ decrease, ] increase
+    if (e.code === 'BracketLeft' && !e.repeat) {
+      e.preventDefault();
+      mouseSensitivity = Math.max(0.0005, mouseSensitivity - 0.00025);
+      localStorage.setItem('mc_sensitivity', '' + mouseSensitivity);
+      showSensitivityToast();
+    }
+    if (e.code === 'BracketRight' && !e.repeat) {
+      e.preventDefault();
+      mouseSensitivity = Math.min(0.01, mouseSensitivity + 0.00025);
+      localStorage.setItem('mc_sensitivity', '' + mouseSensitivity);
+      showSensitivityToast();
     }
   });
   document.addEventListener('keyup', function(e) { keys.delete(e.code); });
@@ -559,11 +591,43 @@ function updateDebug() {
   var el = document.getElementById('debug');
   if (!el) return;
   var p = player.pos;
+  var sensMult = (mouseSensitivity / BASE_SENSITIVITY).toFixed(2);
   el.innerHTML =
     'XYZ: ' + p.x.toFixed(1) + ' / ' + p.y.toFixed(1) + ' / ' + p.z.toFixed(1) +
     '  |  Blocks: ' + blocks.size +
     '  |  Meshes: ' + meshGroup.children.length +
-    '  |  <span style="color:#5cdb5c">' + QUALITY.tier + '</span>';
+    '  |  <span style="color:#5cdb5c">' + QUALITY.tier + '</span>' +
+    '  |  Sens: <span id="sens-val">' + sensMult + 'x</span>';
+}
+
+// Toast notification for sensitivity changes
+var sensToastTimeout = null;
+function showSensitivityToast() {
+  // Remove old toast
+  var old = document.getElementById('sens-toast');
+  if (old) old.parentNode.removeChild(old);
+
+  var mult = (mouseSensitivity / BASE_SENSITIVITY).toFixed(2);
+  var toast = document.createElement('div');
+  toast.id = 'sens-toast';
+  toast.style.cssText =
+    'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);' +
+    'background:rgba(0,0,0,0.75);color:#5cdb5c;padding:10px 24px;' +
+    'border-radius:6px;font:14px/1 monospace;z-index:20;' +
+    'transition:opacity 0.3s;pointer-events:none;';
+  toast.textContent = 'Sensitivity: ' + mult + 'x  (' + mouseSensitivity.toFixed(5) + ')';
+  document.body.appendChild(toast);
+
+  // Also update the inline sens value if it exists
+  var v = document.getElementById('sens-val');
+  if (v) v.textContent = mult + 'x';
+
+  // Clear any previous fade timer
+  if (sensToastTimeout) clearTimeout(sensToastTimeout);
+  sensToastTimeout = setTimeout(function() {
+    toast.style.opacity = '0';
+    setTimeout(function() { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 400);
+  }, 1500);
 }
 
 // ╔══════════════════════════════════════════════════════════════╗
@@ -651,7 +715,7 @@ function init() {
   if (blockQ) blockQ.textContent = 'Quality: ' + QUALITY.tier;
 
   var debugEl = document.getElementById('debug');
-  if (debugEl) debugEl.innerHTML = 'Ready — click to play  |  <span style="color:#5cdb5c">' + QUALITY.tier + '</span>';
+  if (debugEl) debugEl.innerHTML = 'Ready — click to play  |  <span style="color:#5cdb5c">' + QUALITY.tier + '</span>  |  Sens: <span id="sens-val">' + (mouseSensitivity / BASE_SENSITIVITY).toFixed(2) + 'x</span>';
 
   // Kick off
   animate(performance.now());
