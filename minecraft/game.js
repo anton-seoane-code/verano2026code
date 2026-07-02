@@ -1,38 +1,156 @@
 /* ═══════════════════════════════════════════════════════════════
    Minecraft-style 3D voxel world — Three.js
-   Uses THREE global from script tag (works on file://)
+   Auto-scales quality to fit device capability.
    ═══════════════════════════════════════════════════════════════ */
 
-// ─── Constants ────────────────────────────────────────────────
-const WORLD_RADIUS   = 20;         // world is -R .. +R on X and Z
-const GRAVITY        = -28;
-const JUMP_SPEED     = 10;
-const WALK_SPEED     = 5;
-const SNEAK_SPEED    = 2;
-const REACH          = 7;
-const PLAYER_HEIGHT  = 1.62;
-const PLAYER_RADIUS  = 0.3;
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Quality auto-detection (runs before anything else)         ║
+// ╚══════════════════════════════════════════════════════════════╝
 
-const BT = {                // block-type constants
+var QUALITY = {};
+
+function detectQuality() {
+  // URL param override: ?quality=low|medium|high|ultra
+  var params = new URLSearchParams(window.location.search);
+  var forced = params.get('quality');
+  if (forced) {
+    var lower = forced.toLowerCase();
+    if (['low','medium','high','ultra'].indexOf(lower) !== -1) {
+      console.log('[Quality] Manual override: ' + lower);
+      return lower;
+    }
+  }
+
+  var score = 0;
+
+  // Device memory (Chrome / Edge only — undefined elsewhere)
+  if (navigator.deviceMemory !== undefined) {
+    if (navigator.deviceMemory >= 8) score += 3;
+    else if (navigator.deviceMemory >= 4) score += 2;
+    else if (navigator.deviceMemory >= 2) score += 1;
+  } else {
+    // Unknown memory — assume mid-range as a baseline
+    score += 1;
+  }
+
+  // CPU logical cores
+  if (navigator.hardwareConcurrency !== undefined) {
+    if (navigator.hardwareConcurrency >= 8) score += 2;
+    else if (navigator.hardwareConcurrency >= 4) score += 1;
+    // < 4: +0
+  } else {
+    score += 1; // conservative assumption
+  }
+
+  // Pixel ratio — high DPI suggests recent hardware
+  var pr = window.devicePixelRatio || 1;
+  if (pr > 2) score += 2;
+  else if (pr > 1) score += 1;
+
+  // Mobile penalisation — same silicon but thermal + battery constraints
+  if (/Android|iPhone|iPad|iPod|mobile|Mobi/i.test(navigator.userAgent)) {
+    score -= 2;
+  }
+
+  // Small screen — likely an older device or laptop
+  if (window.innerWidth < 800) score -= 1;
+
+  // Determine tier
+  if (score >= 6) return 'ultra';
+  if (score >= 4) return 'high';
+  if (score >= 2) return 'medium';
+  return 'low';
+}
+
+function applyQuality(tier) {
+  var presets = {
+    low: {
+      worldRadius:   10,
+      fogFar:        35,
+      shadows:       false,
+      shadowMapSize: 0,
+      pixelRatio:    1,
+      antialias:     false,
+      treeDensity:   0.003,
+    },
+    medium: {
+      worldRadius:   16,
+      fogFar:        55,
+      shadows:       false,
+      shadowMapSize: 0,
+      pixelRatio:    1,
+      antialias:     true,
+      treeDensity:   0.005,
+    },
+    high: {
+      worldRadius:   20,
+      fogFar:        80,
+      shadows:       true,
+      shadowMapSize: 1024,
+      pixelRatio:    1.5,
+      antialias:     true,
+      treeDensity:   0.008,
+    },
+    ultra: {
+      worldRadius:   28,
+      fogFar:        110,
+      shadows:       true,
+      shadowMapSize: 2048,
+      pixelRatio:    Math.min(window.devicePixelRatio || 1, 2),
+      antialias:     true,
+      treeDensity:   0.012,
+    },
+  };
+
+  QUALITY = presets[tier] || presets.medium;
+  QUALITY.tier = tier.charAt(0).toUpperCase() + tier.slice(1);
+  QUALITY.fogNear = QUALITY.fogFar * 0.6;
+
+  console.log('[Quality] Tier: ' + QUALITY.tier +
+    '  |  World: ' + QUALITY.worldRadius + 'r' +
+    '  |  Shadows: ' + QUALITY.shadows +
+    '  |  Fog: ' + QUALITY.fogFar +
+    '  |  PR: ' + QUALITY.pixelRatio +
+    '  |  Trees: ' + QUALITY.treeDensity);
+}
+
+applyQuality(detectQuality());
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Constants                                                  ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+var WORLD_RADIUS   = QUALITY.worldRadius;
+var GRAVITY        = -28;
+var JUMP_SPEED     = 10;
+var WALK_SPEED     = 5;
+var SNEAK_SPEED    = 2;
+var REACH          = 7;
+var PLAYER_HEIGHT  = 1.62;
+var PLAYER_RADIUS  = 0.3;
+
+var BT = {
   AIR:0, GRASS:1, DIRT:2, STONE:3,
   WOOD:4, LEAVES:5, SAND:6, COBBLE:7,
 };
 
-const BLOCK_INFO = {
-  [BT.GRASS]:  { name:'Grass',  color:0x7cb342, top:0x7cb342, side:0x8d6e63 },
-  [BT.DIRT]:   { name:'Dirt',   color:0x8d6e63 },
-  [BT.STONE]:  { name:'Stone',  color:0x9e9e9e },
-  [BT.WOOD]:   { name:'Wood',   color:0x5d4037 },
-  [BT.LEAVES]: { name:'Leaves', color:0x2e7d32 },
-  [BT.SAND]:   { name:'Sand',   color:0xf6e5b3 },
-  [BT.COBBLE]: { name:'Cobble', color:0x7a7a7a },
-};
+var BLOCK_INFO = {};
+BLOCK_INFO[BT.GRASS]  = { name:'Grass',  color:0x7cb342 };
+BLOCK_INFO[BT.DIRT]   = { name:'Dirt',   color:0x8d6e63 };
+BLOCK_INFO[BT.STONE]  = { name:'Stone',  color:0x9e9e9e };
+BLOCK_INFO[BT.WOOD]   = { name:'Wood',   color:0x5d4037 };
+BLOCK_INFO[BT.LEAVES] = { name:'Leaves', color:0x2e7d32 };
+BLOCK_INFO[BT.SAND]   = { name:'Sand',   color:0xf6e5b3 };
+BLOCK_INFO[BT.COBBLE] = { name:'Cobble', color:0x7a7a7a };
 
-const HOTBAR = [BT.GRASS, BT.DIRT, BT.STONE, BT.WOOD, BT.LEAVES, BT.SAND, BT.COBBLE];
+var HOTBAR = [BT.GRASS, BT.DIRT, BT.STONE, BT.WOOD, BT.LEAVES, BT.SAND, BT.COBBLE];
 
-// ─── State ────────────────────────────────────────────────────
-const blocks = new Map();            // "x,y,z" → block-type
-const meshGroup = new THREE.Group(); // all visible block meshes
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  State                                                      ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+var blocks = new Map();
+var meshGroup = new THREE.Group();
 var highlightMesh = new THREE.LineSegments(
   new THREE.EdgesGeometry(new THREE.BoxGeometry(1.01, 1.01, 1.01)),
   new THREE.LineBasicMaterial({ color:0xffffff, transparent:true, opacity:0.4 }),
@@ -46,16 +164,17 @@ var player = {
   onGround: false,
 };
 
-var keys = new Set();              // currently-pressed key set
+var keys = new Set();
 var selectedSlot = 0;
 var pointerLocked = false;
-
-// Three.js objects (set up in init)
 var scene, camera, renderer;
 var dummyObj = new THREE.Object3D();
 var _v = new THREE.Vector3();
 
-// ─── Helpers ──────────────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Helpers                                                    ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function k(x, y, z) { return Math.floor(x)+','+Math.floor(y)+','+Math.floor(z); }
 
 function getB(x, y, z) { return blocks.get(k(x, y, z)) || 0; }
@@ -72,7 +191,10 @@ function blockKey(pos) {
   return { x: Math.floor(pos.x), y: Math.floor(pos.y), z: Math.floor(pos.z) };
 }
 
-// ─── Terrain generation ──────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Terrain generation                                         ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function terrainHeight(x, z) {
   return Math.floor(
     Math.sin(x * 0.18 + z * 0.13) * 2.5 +
@@ -95,14 +217,15 @@ function generateWorld() {
     }
   }
 
-  // Trees (scattered)
-  var treeCount = Math.floor((WORLD_RADIUS * 2 + 1) * (WORLD_RADIUS * 2 + 1) * 0.008);
+  // Trees
+  var area = (WORLD_RADIUS * 2 + 1) * (WORLD_RADIUS * 2 + 1);
+  var treeCount = Math.floor(area * QUALITY.treeDensity);
   for (var t = 0; t < treeCount; t++) {
     var tx = Math.floor(Math.random() * (WORLD_RADIUS * 2 - 8)) - WORLD_RADIUS + 4;
     var tz = Math.floor(Math.random() * (WORLD_RADIUS * 2 - 8)) - WORLD_RADIUS + 4;
     var th = terrainHeight(tx, tz);
 
-    // Trunk 4 blocks tall
+    // Trunk 4 blocks
     for (var y = th + 1; y <= th + 4; y++) setB(tx, y, tz, BT.WOOD);
 
     // Canopy
@@ -118,7 +241,6 @@ function generateWorld() {
         }
       }
     }
-    // Cap
     setB(tx, th + 6, tz, BT.LEAVES);
   }
 
@@ -126,9 +248,11 @@ function generateWorld() {
   updateDebug();
 }
 
-// ─── Mesh building ───────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Mesh building                                              ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function rebuildMeshes() {
-  // Remove old children and dispose resources
   while (meshGroup.children.length) {
     var child = meshGroup.children[0];
     if (child.geometry) child.geometry.dispose();
@@ -136,7 +260,6 @@ function rebuildMeshes() {
     meshGroup.remove(child);
   }
 
-  // Pre-count visible blocks per type
   var counts = {};
   var positions = {};
   for (var i = 0; i < HOTBAR.length; i++) {
@@ -144,7 +267,7 @@ function rebuildMeshes() {
     positions[HOTBAR[i]] = [];
   }
 
-  // First pass: count visible blocks
+  // First pass: count visible blocks only (skip surrounded)
   var iter = blocks.entries();
   for (var entry = iter.next(); !entry.done; entry = iter.next()) {
     var key = entry.value[0];
@@ -154,14 +277,12 @@ function rebuildMeshes() {
     var x = parseInt(parts[0], 10);
     var y = parseInt(parts[1], 10);
     var z = parseInt(parts[2], 10);
-    // Face culling: skip if completely surrounded
     if (isSolid(x-1,y,z) && isSolid(x+1,y,z) && isSolid(x,y-1,z) &&
         isSolid(x,y,z-1) && isSolid(x,y,z+1)) continue;
     counts[type] = (counts[type] || 0) + 1;
     (positions[type] || (positions[type] = [])).push({ x:x, y:y, z:z });
   }
 
-  // Second pass: create InstancedMesh for each type
   var geo = new THREE.BoxGeometry(1, 1, 1);
   var dummy = new THREE.Object3D();
 
@@ -188,7 +309,10 @@ function rebuildMeshes() {
   scene.add(meshGroup);
 }
 
-// ─── Raycaster helpers ────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Raycaster                                                  ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function intersectBlocks() {
   var dir = new THREE.Vector3(0, 0, -1).applyQuaternion(camera.quaternion);
   var ray = new THREE.Raycaster(camera.position, dir, 0, REACH);
@@ -199,7 +323,6 @@ function intersectBlocks() {
 
   var hit = hits[0];
 
-  // Recover block position from InstancedMesh
   if (hit.object.isInstancedMesh && hit.instanceId !== undefined) {
     hit.object.getMatrixAt(hit.instanceId, dummyObj.matrix);
     dummyObj.matrix.decompose(_v, dummyObj.quaternion, dummyObj.scale);
@@ -215,7 +338,10 @@ function intersectBlocks() {
   return null;
 }
 
-// ─── Block breaking / placing ────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Block interaction                                          ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function breakBlock() {
   var t = intersectBlocks();
   if (!t) return;
@@ -230,7 +356,6 @@ function placeBlock() {
   var py = t.y + t.normal.y;
   var pz = t.z + t.normal.z;
 
-  // Don't place inside player
   var pp = blockKey(camera.position);
   if (px === pp.x && py === pp.y && pz === pp.z) return;
   if (px === pp.x && py === pp.y + 1 && pz === pp.z) return;
@@ -241,7 +366,10 @@ function placeBlock() {
   }
 }
 
-// ─── Pointer lock ────────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Pointer lock                                               ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function initPointerLock() {
   var blocker = document.getElementById('blocker');
   blocker.addEventListener('click', function() {
@@ -261,7 +389,10 @@ function initPointerLock() {
   });
 }
 
-// ─── Keyboard ────────────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Keyboard                                                   ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function initKeyboard() {
   document.addEventListener('keydown', function(e) {
     keys.add(e.code);
@@ -269,18 +400,31 @@ function initKeyboard() {
       var n = parseInt(e.code.charAt(5), 10);
       if (n >= 1 && n <= HOTBAR.length) { selectedSlot = n - 1; updateHotbar(); }
     }
+
+    // Quality hot-swap for testing: Ctrl+Q cycles low→medium→high→ultra
+    if (e.code === 'KeyQ' && (e.ctrlKey || e.metaKey)) {
+      e.preventDefault();
+      var tiers = ['low','medium','high','ultra'];
+      var idx = tiers.indexOf(QUALITY.tier.toLowerCase());
+      var next = tiers[(idx + 1) % tiers.length];
+      console.log('[Quality] Hot-swap to ' + next);
+      applyQuality(next);
+      WORLD_RADIUS = QUALITY.worldRadius;
+      blocks.clear();
+      generateWorld();
+    }
   });
   document.addEventListener('keyup', function(e) { keys.delete(e.code); });
 }
 
-// ─── Player movement (per frame) ─────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Player movement                                            ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function updatePlayer(dt) {
   if (!pointerLocked) return;
-
-  // Clamp delta to avoid physics blowup on tab-away
   dt = Math.min(dt, 0.05);
 
-  // Movement direction (XZ plane, relative to yaw)
   var forward = new THREE.Vector3(-Math.sin(player.yaw), 0, -Math.cos(player.yaw));
   var right   = new THREE.Vector3( Math.cos(player.yaw), 0, -Math.sin(player.yaw));
 
@@ -294,21 +438,17 @@ function updatePlayer(dt) {
   var speed = (keys.has('ShiftLeft') || keys.has('ShiftRight')) ? SNEAK_SPEED : WALK_SPEED;
   move.multiplyScalar(speed * dt);
 
-  // Jump
   if (keys.has('Space') && player.onGround) {
     player.vel.y = JUMP_SPEED;
     player.onGround = false;
   }
 
-  // Gravity
   player.vel.y += GRAVITY * dt;
 
-  // ── Collision (axis-separated) ──
   var pos = player.pos;
   var r = PLAYER_RADIUS;
   var h = PLAYER_HEIGHT;
 
-  // Helper: AABB overlap test against world blocks
   function collide(px, py, pz) {
     var minX = Math.floor(px - r), maxX = Math.floor(px + r);
     var minY = Math.floor(py),     maxY = Math.floor(py + h);
@@ -323,15 +463,12 @@ function updatePlayer(dt) {
     return false;
   }
 
-  // Try X
   var nx = pos.x + move.x;
   if (!collide(nx, pos.y, pos.z)) pos.x = nx;
 
-  // Try Z
   var nz = pos.z + move.z;
   if (!collide(pos.x, pos.y, nz)) pos.z = nz;
 
-  // Try Y (gravity + jump)
   var ny = pos.y + player.vel.y * dt;
   if (!collide(pos.x, ny, pos.z)) {
     pos.y = ny;
@@ -341,7 +478,6 @@ function updatePlayer(dt) {
     player.vel.y = 0;
   }
 
-  // Don't fall below world
   if (pos.y < -10) {
     var sh = terrainHeight(0, 0);
     pos.set(0, sh + 3, 0);
@@ -349,14 +485,20 @@ function updatePlayer(dt) {
   }
 }
 
-// ─── Camera ──────────────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Camera                                                     ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function updateCamera() {
   camera.position.set(player.pos.x, player.pos.y + PLAYER_HEIGHT, player.pos.z);
   var euler = new THREE.Euler(player.pitch, player.yaw, 0, 'YXZ');
   camera.quaternion.setFromEuler(euler);
 }
 
-// ─── Highlight ───────────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Highlight                                                  ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function updateHighlight() {
   var t = intersectBlocks();
   if (t) {
@@ -367,7 +509,10 @@ function updateHighlight() {
   }
 }
 
-// ─── UI ──────────────────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  UI                                                         ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function buildHotbar() {
   var el = document.getElementById('hotbar');
   el.innerHTML = '';
@@ -414,13 +559,17 @@ function updateDebug() {
   var el = document.getElementById('debug');
   if (!el) return;
   var p = player.pos;
-  el.textContent =
+  el.innerHTML =
     'XYZ: ' + p.x.toFixed(1) + ' / ' + p.y.toFixed(1) + ' / ' + p.z.toFixed(1) +
     '  |  Blocks: ' + blocks.size +
-    '  |  Meshes: ' + meshGroup.children.length;
+    '  |  Meshes: ' + meshGroup.children.length +
+    '  |  <span style="color:#5cdb5c">' + QUALITY.tier + '</span>';
 }
 
-// ─── Mouse events ────────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Mouse events                                               ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function initMouseActions() {
   renderer.domElement.addEventListener('mousedown', function(e) {
     if (!pointerLocked) return;
@@ -430,19 +579,26 @@ function initMouseActions() {
   renderer.domElement.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 }
 
-// ─── Init ────────────────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Init                                                       ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 function init() {
   scene = new THREE.Scene();
   scene.background = new THREE.Color(0x87ceeb);
-  scene.fog = new THREE.Fog(0x87ceeb, 50, 80);
+  scene.fog = new THREE.Fog(0x87ceeb, QUALITY.fogNear, QUALITY.fogFar);
 
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 200);
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, QUALITY.fogFar * 2);
 
-  renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer = new THREE.WebGLRenderer({ antialias: QUALITY.antialias });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setPixelRatio(QUALITY.pixelRatio);
+
+  if (QUALITY.shadows) {
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  }
+
   document.body.prepend(renderer.domElement);
 
   // Lights
@@ -451,14 +607,17 @@ function init() {
 
   var sun = new THREE.DirectionalLight(0xffeedd, 1.4);
   sun.position.set(50, 80, 30);
-  sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
-  sun.shadow.camera.near = 0.5;
-  sun.shadow.camera.far = 200;
-  sun.shadow.camera.left = -60;
-  sun.shadow.camera.right = 60;
-  sun.shadow.camera.top = 60;
-  sun.shadow.camera.bottom = -60;
+  if (QUALITY.shadows) {
+    sun.castShadow = true;
+    sun.shadow.mapSize.set(QUALITY.shadowMapSize, QUALITY.shadowMapSize);
+    sun.shadow.camera.near = 0.5;
+    sun.shadow.camera.far = 200;
+    var s = QUALITY.worldRadius * 2.5;
+    sun.shadow.camera.left = -s;
+    sun.shadow.camera.right = s;
+    sun.shadow.camera.top = s;
+    sun.shadow.camera.bottom = -s;
+  }
   scene.add(sun);
 
   var hemi = new THREE.HemisphereLight(0x87ceeb, 0x3a4a2e, 0.3);
@@ -487,14 +646,21 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
   });
 
-  var debugEl = document.getElementById('debug');
-  if (debugEl) debugEl.textContent = 'Ready - click to play';
+  // Show quality tier on the blocker overlay
+  var blockQ = document.getElementById('quality-badge');
+  if (blockQ) blockQ.textContent = 'Quality: ' + QUALITY.tier;
 
-  // Kick off the game loop
+  var debugEl = document.getElementById('debug');
+  if (debugEl) debugEl.innerHTML = 'Ready — click to play  |  <span style="color:#5cdb5c">' + QUALITY.tier + '</span>';
+
+  // Kick off
   animate(performance.now());
 }
 
-// ─── Game loop ────────────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Game loop                                                  ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 var prevTime = performance.now();
 
 function animate(time) {
@@ -510,5 +676,8 @@ function animate(time) {
   renderer.render(scene, camera);
 }
 
-// ─── Go ──────────────────────────────────────────────────────
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  Go                                                         ║
+// ╚══════════════════════════════════════════════════════════════╝
+
 init();
