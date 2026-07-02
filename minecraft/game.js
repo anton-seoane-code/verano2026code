@@ -491,8 +491,8 @@ function updateMobs(dt) {
       }
     } else if (mob.state === 'walk') {
       // Calculate movement
-      var dx = Math.sin(mob.dir) * mob.speed * dt;
-      var dz = Math.cos(mob.dir) * mob.speed * dt;
+      var dx = Math.sin(mob.group.rotation.y) * mob.speed * dt;
+      var dz = Math.cos(mob.group.rotation.y) * mob.speed * dt;
       var nx = mob.pos.x + dx;
       var nz = mob.pos.z + dz;
 
@@ -541,14 +541,9 @@ function updateMobs(dt) {
     // Update group position and rotation
     mob.group.position.set(mob.pos.x, mob.pos.y, mob.pos.z);
 
-    // Smoothly face direction of travel
+    // Face direction of travel (instant snap — no lerp to avoid backwards walking)
     if (mob.state === 'walk') {
-      var targetYaw = mob.dir;
-      var currentYaw = mob.group.rotation.y;
-      var diff = targetYaw - currentYaw;
-      while (diff > Math.PI) diff -= Math.PI * 2;
-      while (diff < -Math.PI) diff += Math.PI * 2;
-      mob.group.rotation.y += diff * Math.min(1, dt * 6);
+      mob.group.rotation.y = mob.dir;
     }
   }
 }
