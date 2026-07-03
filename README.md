@@ -1,6 +1,20 @@
 # Report
 ## 03/07
 ### Projects:
+- [x] Minecraft (Python/OpenGL) `minecraft/` — Phase A: Core Engine
+  - 3D voxel world using PyOpenGL + numpy + pygame
+  - Procedural terrain generation (value noise with 4 octaves): grass, dirt, stone layers
+  - First-person controls: WASD movement, mouse look (grab), Space to jump
+  - 7 block types in hotbar (keys 1-4, scroll wheel): Grass, Stone, Planks, Brick
+  - Left-click break, right-click place adjacent to targeted face
+  - Chunk-based storage (16×64×16), face-culled mesh rebuilding per chunk
+  - AABB collision with axis-separated sweeping
+  - DDA raycasting for block targeting (6 block reach)
+  - Gravity, sprint (Shift/Ctrl), landing detection
+  - OpenGL 4.5 shader-based batch rendering with VBOs
+  - Runtime-generated texture atlas (128×64) with per-block colors
+  - Fog (linear fog from 40 to 80 units)
+  - Dependencies: pygame, PyOpenGL, numpy, Pillow
 - [x] Classic Donkey Kong `classic-donkeykong/`
   - Canvas tribute to the 1981 arcade classic
   - 4 girder levels + ground, connected by ladders (up/down climbing)
@@ -17,7 +31,7 @@
 
 ## 02/07
 ### Projects:
-- [x] Minecraft `minecraft/`
+- [x] Minecraft (Three.js) `minecraft/`
   - 3D voxel world built with Three.js, inspired by Minecraft
   - Procedural terrain generation: grass, dirt, stone layers with gentle hills
   - Scattered trees with wood trunks and leaf canopies
