@@ -1,19 +1,26 @@
 # Report
 ## 03/07
 ### Projects:
-- [x] Minecraft (Python/OpenGL) `minecraft/` — Phase A: Core Engine
+- [x] Minecraft (Python/OpenGL) `minecraft/` — Phase A+B: Core Engine + Features
   - 3D voxel world using PyOpenGL + numpy + pygame
   - Procedural terrain generation (value noise with 4 octaves): grass, dirt, stone layers
+  - Tree generation with wood trunks and leaf canopies (20:1 spawn chance)
   - First-person controls: WASD movement, mouse look (grab), Space to jump
-  - 7 block types in hotbar (keys 1-4, scroll wheel): Grass, Stone, Planks, Brick
-  - Left-click break, right-click place adjacent to targeted face
+  - 7 block types in hotbar (keys 1-7): Grass, Stone, Planks, Brick, Leaves, Wood, Sand
+  - Scroll wheel to cycle blocks, numbered keys for direct selection
+  - Left-click break, right-click place adjacent to targeted face (with procedural SFX)
+  - White wireframe highlight on targeted block
   - Chunk-based storage (16×64×16), face-culled mesh rebuilding per chunk
+  - Transparent leaves (alpha-tested texture) with face rendering on adjacent transparent blocks
   - AABB collision with axis-separated sweeping
   - DDA raycasting for block targeting (6 block reach)
   - Gravity, sprint (Shift/Ctrl), landing detection
   - OpenGL 4.5 shader-based batch rendering with VBOs
-  - Runtime-generated texture atlas (128×64) with per-block colors
-  - Fog (linear fog from 40 to 80 units)
+  - Runtime-generated 256×64 texture atlas with per-block colored textures
+  - Dynamic sky color (slowly shifting hue), linear fog (40–80 units)
+  - HUD overlay: crosshair, block coordinates, 7-slot hotbar
+  - Procedurally generated sound effects (block place/break)
+  - Superpowers plugin installed (opencode.json)
   - Dependencies: pygame, PyOpenGL, numpy, Pillow
 - [x] Classic Donkey Kong `classic-donkeykong/`
   - Canvas tribute to the 1981 arcade classic

@@ -52,6 +52,24 @@ class Chunk:
                         self.blocks[x, y, z] = 2
                     else:
                         self.blocks[x, y, z] = 3
+        for x in range(CHUNK_SIZE):
+            for z in range(CHUNK_SIZE):
+                h = int(self.blocks[x, :, z].nonzero()[0][-1]) + 1 if self.blocks[x, :, z].any() else 0
+                if h > 5 and hash_noise(sx + x, sz + z, seed + 999) % 20 == 0:
+                    trunk_h = 3 + hash_noise(sx + x, sz + z, seed + 888) % 3
+                    for ty in range(h, h + trunk_h):
+                        if ty < WORLD_HEIGHT:
+                            self.blocks[x, ty, z] = 4
+                    leaf_start = h + trunk_h - 2
+                    for lx in range(-2, 3):
+                        for lz in range(-2, 3):
+                            for ly in range(leaf_start, h + trunk_h + 1):
+                                wx, wz = x + lx, z + lz
+                                if 0 <= wx < CHUNK_SIZE and 0 <= wz < CHUNK_SIZE and ly < WORLD_HEIGHT:
+                                    if abs(lx) == 2 and abs(lz) == 2 and (ly == leaf_start or ly == h + trunk_h):
+                                        continue
+                                    if self.blocks[wx, ly, wz] == 0:
+                                        self.blocks[wx, ly, wz] = 8
         self.dirty = True
 
     def get_block(self, x, y, z):
@@ -63,6 +81,9 @@ class Chunk:
         if 0 <= x < CHUNK_SIZE and 0 <= y < WORLD_HEIGHT and 0 <= z < CHUNK_SIZE:
             self.blocks[x, y, z] = bid
             self.dirty = True
+
+    def is_transparent(self, bid):
+        return bid == 0 or (bid in BLOCK_TYPES and not BLOCK_TYPES[bid].get('solid', True))
 
     def build_mesh(self, world_get_block):
         if not self.dirty and self.mesh_verts is not None:
@@ -77,17 +98,17 @@ class Chunk:
                         continue
                     bt = BLOCK_TYPES[bid]
                     wx, wy, wz = self.cx * CHUNK_SIZE + x, y, self.cz * CHUNK_SIZE + z
-                    if not world_get_block(wx, wy + 1, wz):
+                    if not world_get_block(wx, wy + 1, wz) or self.is_transparent(world_get_block(wx, wy + 1, wz)):
                         self._add_face(verts, tex, wx, wy, wz, 'top', bt['top'])
-                    if not world_get_block(wx, wy - 1, wz):
+                    if not world_get_block(wx, wy - 1, wz) or self.is_transparent(world_get_block(wx, wy - 1, wz)):
                         self._add_face(verts, tex, wx, wy, wz, 'bottom', bt['bottom'])
-                    if not world_get_block(wx + 1, wy, wz):
+                    if not world_get_block(wx + 1, wy, wz) or self.is_transparent(world_get_block(wx + 1, wy, wz)):
                         self._add_face(verts, tex, wx, wy, wz, 'right', bt['side'])
-                    if not world_get_block(wx - 1, wy, wz):
+                    if not world_get_block(wx - 1, wy, wz) or self.is_transparent(world_get_block(wx - 1, wy, wz)):
                         self._add_face(verts, tex, wx, wy, wz, 'left', bt['side'])
-                    if not world_get_block(wx, wy, wz + 1):
+                    if not world_get_block(wx, wy, wz + 1) or self.is_transparent(world_get_block(wx, wy, wz + 1)):
                         self._add_face(verts, tex, wx, wy, wz, 'front', bt['side'])
-                    if not world_get_block(wx, wy, wz - 1):
+                    if not world_get_block(wx, wy, wz - 1) or self.is_transparent(world_get_block(wx, wy, wz - 1)):
                         self._add_face(verts, tex, wx, wy, wz, 'back', bt['side'])
         self.mesh_verts = np.array(verts, dtype=np.float32) if verts else np.array([], dtype=np.float32)
         self.mesh_tex = np.array(tex, dtype=np.float32) if tex else np.array([], dtype=np.float32)
@@ -123,7 +144,7 @@ class World:
         key = (cx, cz)
         if key not in self.chunks:
             c = Chunk(cx, cz)
-            c.generate(None)
+            c.generate(self.seed)
             self.chunks[key] = c
         return self.chunks[key]
 

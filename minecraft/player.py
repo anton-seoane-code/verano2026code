@@ -20,7 +20,7 @@ class Player:
         self.selected_block = 1
         self.mouse_grabbed = True
 
-    def handle_event(self, event):
+    def handle_event(self, event, sounds=None):
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.mouse_grabbed = not self.mouse_grabbed
@@ -38,6 +38,12 @@ class Player:
                 self.selected_block = 5
             elif event.key == pygame.K_4:
                 self.selected_block = 7
+            elif event.key == pygame.K_5:
+                self.selected_block = 8
+            elif event.key == pygame.K_6:
+                self.selected_block = 4
+            elif event.key == pygame.K_7:
+                self.selected_block = 6
         elif event.type == pygame.KEYUP:
             if event.key in (pygame.K_LCTRL, pygame.K_LSHIFT):
                 self.sprinting = False
@@ -47,11 +53,16 @@ class Player:
                 if hit:
                     bx, by, bz = hit['block']
                     self.world.set_block(bx, by, bz, 0)
+                    if sounds and 'break' in sounds:
+                        sounds['break'].play()
             elif event.button == 3:
                 hit = self.raycast()
                 if hit:
-                    bx, by, bz = hit['normal']
-                    self.world.set_block(bx, by, bz, self.selected_block)
+                    nx, ny, nz = hit['normal']
+                    if self.world.get_block(nx, ny, nz) == 0:
+                        self.world.set_block(nx, ny, nz, self.selected_block)
+                        if sounds and 'place' in sounds:
+                            sounds['place'].play()
             elif event.button == 4:
                 self.selected_block = max(1, self.selected_block - 1)
             elif event.button == 5:
