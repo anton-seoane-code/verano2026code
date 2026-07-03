@@ -1,4 +1,20 @@
 # Report
+## 03/07
+### Projects:
+- [x] Classic Donkey Kong `classic-donkeykong/`
+  - Canvas tribute to the 1981 arcade classic
+  - 4 girder levels + ground, connected by ladders (up/down climbing)
+  - Donkey Kong at the top throwing barrels at the player
+  - Barrels roll along platforms, fall off edges, and speed up over time
+  - Player (Mario) sprite with hat, face, red shirt, blue overalls
+  - Full movement: left/right walk, jump, ladder climb up/down
+  - Barrel collision = death (with brief invincibility frames on respawn)
+  - 3 lives, scoring, level progression (barrels get faster each level)
+  - DK sprite with animated throwing arms, barrel rolling animation
+  - Retro visual style: dark starry background, girder cross-hatch platforms, golden ladders
+  - Title screen with controls overlay
+  - No dependencies — open `index.html` in any browser
+
 ## 02/07
 ### Projects:
 - [x] Minecraft `minecraft/`

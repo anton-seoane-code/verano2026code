@@ -1,0 +1,719 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Classic Donkey Kong</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;background:#111}
+canvas{display:block;margin:auto;image-rendering:pixelated}
+#wrap{width:800px;height:600px;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)}
+#title-screen{position:absolute;inset:0;background:rgba(0,0,0,0.85);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:10;cursor:pointer}
+#title-screen h1{color:#e74c3c;font:bold 56px/1 'Courier New',monospace;text-shadow:3px 3px 0 #c0392b;letter-spacing:4px;margin-bottom:8px}
+#title-screen h1 span{color:#f1c40f}
+#title-screen .sub{color:#aaa;font:14px/1.8 'Courier New',monospace;text-align:center;margin-bottom:12px}
+#title-screen .sub span{color:#e74c3c}
+#title-screen .controls{color:#666;font:13px/1.8 sans-serif;text-align:center}
+#title-screen .controls kbd{display:inline-block;background:#333;color:#eee;padding:2px 7px;border-radius:3px;font:bold 12px/1 monospace;border:1px solid #555}
+#title-screen .click-msg{color:#f1c40f;font:18px/1 'Courier New',monospace;margin-top:20px;animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <canvas id="c" width="800" height="600"></canvas>
+  <div id="title-screen">
+    <h1>DONKEY <span>KONG</span></h1>
+    <div class="sub">A <span>canvas</span> tribute to the 1981 arcade classic</div>
+    <div class="controls">
+      <kbd>&larr;</kbd> <kbd>&rarr;</kbd> Move &nbsp;|&nbsp;
+      <kbd>&uarr;</kbd> Climb / Enter ladder &nbsp;|&nbsp;
+      <kbd>Space</kbd> Jump<br>
+      Avoid the barrels! Climb to the top!
+    </div>
+    <div class="click-msg">[ Click to start ]</div>
+  </div>
+</div>
+<script>
+/* ═══════════════════════════════════════════════════════════════
+   Classic Donkey Kong — Canvas tribute
+   ═══════════════════════════════════════════════════════════════ */
+
+var canvas = document.getElementById('c');
+var ctx = canvas.getContext('2d');
+var W = 800, H = 600;
+
+// ─── Platforms & ladders ──────────────────────────────────
+var PLATFORMS = [
+  { x:0,   y:548, w:800, h:16 },  // ground
+  { x:60,  y:428, w:680, h:14 },  // level 1
+  { x:0,   y:320, w:800, h:14 },  // level 2
+  { x:60,  y:212, w:680, h:14 },  // level 3
+  { x:200, y:104, w:400, h:14 },  // level 4 (top / DK)
+];
+
+var LADDERS = [
+  { x:280, y1:428, y2:548 },   // bottom-left
+  { x:580, y1:320, y2:428 },   // right side
+  { x:120, y1:212, y2:320 },   // left side
+  { x:480, y1:104, y2:212 },   // right to top
+];
+
+// Helper: get the platform below a given y (for collision)
+function platformBelow(px, py, pw) {
+  for (var i = 0; i < PLATFORMS.length; i++) {
+    var p = PLATFORMS[i];
+    // Player overlaps platform horizontally
+    if (px + pw > p.x && px < p.x + p.w) {
+      // Player is above the platform top
+      if (py <= p.y && py + 30 >= p.y) {
+        return p;
+      }
+    }
+  }
+  return null;
+}
+
+// Helper: is player overlapping a ladder horizontally?
+function ladderAt(px, pw) {
+  for (var i = 0; i < LADDERS.length; i++) {
+    var l = LADDERS[i];
+    if (px + pw > l.x - 10 && px < l.x + 16) return l;
+  }
+  return null;
+}
+
+// ─── Game state ───────────────────────────────────────────
+var game = {
+  state: 'title',    // 'title' | 'playing' | 'gameover'
+  score: 0,
+  lives: 3,
+  level: 1,
+  timer: 0,
+  barrelTimer: 0,
+  barrelInterval: 60,
+  started: false,
+};
+
+// ─── Player ───────────────────────────────────────────────
+var player = {
+  x: 360, y: 520, w: 20, h: 28,
+  vx: 0, vy: 0,
+  onGround: false,
+  onLadder: false,
+  climbing: false,
+  facing: 1,  // 1=right, -1=left
+  frame: 0,
+  frameTimer: 0,
+  invincible: 0,
+};
+
+// ─── Barrels ──────────────────────────────────────────────
+var barrels = [];
+
+// ─── DK ───────────────────────────────────────────────────
+var dk = {
+  x: 280, y: 90,
+  frame: 0,
+  animTimer: 0,
+  throwing: false,
+  throwTimer: 0,
+};
+
+// ─── Input ────────────────────────────────────────────────
+var keys = {};
+
+document.addEventListener('keydown', function(e) {
+  keys[e.code] = true;
+  if (['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','Space'].indexOf(e.code) !== -1) {
+    e.preventDefault();
+  }
+});
+document.addEventListener('keyup', function(e) { keys[e.code] = false; });
+
+// ─── Game functions ───────────────────────────────────────
+
+function resetGame() {
+  game.score = 0;
+  game.lives = 3;
+  game.level = 1;
+  game.barrelInterval = 60;
+  barrels = [];
+  resetPlayer();
+  game.state = 'playing';
+}
+
+function resetPlayer() {
+  player.x = 360;
+  player.y = 520;
+  player.vx = 0;
+  player.vy = 0;
+  player.onGround = true;
+  player.onLadder = false;
+  player.climbing = false;
+  player.invincible = 60;
+}
+
+function getGroundY() {
+  return PLATFORMS[0].y - player.h;
+}
+
+function spawnBarrel() {
+  var dir = Math.random() > 0.5 ? 1 : -1;
+  // Always spawn going right from DK
+  barrels.push({
+    x: dk.x + 20,
+    y: 104 - 14,   // on top of DK's platform
+    vx: 1.5 + Math.random() * 0.5,
+    vy: 0,
+    r: 10,
+    onPlatform: PLATFORMS[4],
+    dir: 1,
+    bounces: 0,
+    onGround: true,
+    anim: 0,
+  });
+}
+
+function updatePlayer() {
+  if (game.state !== 'playing') return;
+
+  // Invincibility countdown
+  if (player.invincible > 0) player.invincible--;
+
+  var ladder = ladderAt(player.x, player.w);
+  player.onLadder = ladder !== null;
+
+  // Ladder climbing
+  player.climbing = false;
+  if (player.onLadder && (keys['ArrowUp'] || keys['KeyW'])) {
+    player.climbing = true;
+    player.vy = -2.5;
+    player.vx = 0;
+    // Move toward ladder centre
+    var targetX = ladder.x;
+    if (player.x < targetX - 1) player.vx = 2;
+    else if (player.x > targetX + 1) player.vx = -2;
+    // Snap to ladder when close enough
+    if (Math.abs(player.x - targetX) < 3) player.x = targetX;
+
+    // Check if reached top of ladder
+    if (player.y <= ladder.y1 - player.h) {
+      player.y = ladder.y1 - player.h;
+      player.vy = 0;
+      player.climbing = false;
+    }
+  }
+  // Climb down ladder
+  if (player.onLadder && (keys['ArrowDown'] || keys['KeyS'])) {
+    player.climbing = true;
+    player.vy = 2.5;
+    player.vx = 0;
+    var targetX = ladder.x;
+    if (player.x < targetX - 1) player.vx = 2;
+    else if (player.x > targetX + 1) player.vx = -2;
+    if (Math.abs(player.x - targetX) < 3) player.x = targetX;
+
+    // Check if reached bottom of ladder
+    if (player.y >= ladder.y2 - player.h) {
+      player.y = ladder.y2 - player.h;
+      player.vy = 0;
+      player.climbing = false;
+    }
+  }
+
+  // Horizontal movement (only when not climbing)
+  if (!player.climbing) {
+    player.vx = 0;
+    if (keys['ArrowLeft'] || keys['KeyA']) { player.vx = -3; player.facing = -1; }
+    if (keys['ArrowRight'] || keys['KeyD']) { player.vx = 3; player.facing = 1; }
+
+    // Jump
+    if ((keys['Space'] || keys['ArrowUp'] || keys['KeyW']) && player.onGround) {
+      player.vy = -7;
+      player.onGround = false;
+    }
+
+    // Gravity
+    if (!player.onGround) {
+      player.vy += 0.35;
+      if (player.vy > 8) player.vy = 8;
+    }
+
+    // Animation
+    if (player.vx !== 0 && player.onGround) {
+      player.frameTimer++;
+      if (player.frameTimer > 6) {
+        player.frame = (player.frame + 1) % 4;
+        player.frameTimer = 0;
+      }
+    } else if (player.onGround) {
+      player.frame = 0;
+      player.frameTimer = 0;
+    }
+  } else {
+    // Climbing animation
+    player.frameTimer++;
+    if (player.frameTimer > 8) {
+      player.frame = (player.frame + 1) % 2;
+      player.frameTimer = 0;
+    }
+  }
+
+  // Apply velocity
+  player.x += player.vx;
+  player.y += player.vy;
+
+  // Horizontal bounds
+  if (player.x < 0) player.x = 0;
+  if (player.x + player.w > W) player.x = W - player.w;
+
+  // Platform collision (only when falling or on ground)
+  player.onGround = false;
+  if (!player.climbing) {
+    for (var i = 0; i < PLATFORMS.length; i++) {
+      var p = PLATFORMS[i];
+      if (player.x + player.w > p.x && player.x < p.x + p.w) {
+        if (player.vy >= 0 && player.y + player.h >= p.y && player.y + player.h <= p.y + p.h + 10) {
+          player.y = p.y - player.h;
+          player.vy = 0;
+          player.onGround = true;
+        }
+      }
+    }
+  }
+
+  // Fell off bottom
+  if (player.y > H + 50) {
+    playerDie();
+  }
+
+  // Reached the top?
+  if (player.y <= 120 && player.x > 200 && player.x < 600) {
+    // Win the level!
+    game.score += 1000;
+    game.level++;
+    game.barrelInterval = Math.max(25, game.barrelInterval - 5);
+    resetPlayer();
+    // Clear barrels
+    barrels = [];
+  }
+}
+
+function playerDie() {
+  if (player.invincible > 0) return;
+  game.lives--;
+  if (game.lives <= 0) {
+    game.state = 'gameover';
+  } else {
+    resetPlayer();
+    barrels = [];
+  }
+}
+
+function updateBarrels() {
+  // Spawn barrels from DK
+  game.timer++;
+  game.barrelTimer++;
+  if (game.barrelTimer >= game.barrelInterval) {
+    game.barrelTimer = 0;
+    spawnBarrel();
+    // Occasionally spawn 2 at once on later levels
+    if (game.level >= 3 && Math.random() < 0.3) spawnBarrel();
+  }
+
+  dk.animTimer++;
+  if (dk.animTimer > 10) {
+    dk.frame = (dk.frame + 1) % 2;
+    dk.animTimer = 0;
+  }
+
+  for (var i = barrels.length - 1; i >= 0; i--) {
+    var b = barrels[i];
+    b.anim += 0.1;
+
+    // Gravity
+    if (!b.onGround) {
+      b.vy += 0.4;
+      if (b.vy > 10) b.vy = 10;
+    }
+
+    b.x += b.vx;
+    b.y += b.vy;
+
+    // Check platform collision
+    b.onGround = false;
+    for (var j = 0; j < PLATFORMS.length; j++) {
+      var p = PLATFORMS[j];
+      if (b.x + b.r > p.x && b.x - b.r < p.x + p.w) {
+        if (b.vy >= 0 && b.y + b.r >= p.y && b.y + b.r <= p.y + p.h + 12) {
+          b.y = p.y - b.r;
+          b.vy = 0;
+          b.onGround = true;
+
+          // If barrel reaches the edge of a platform, fall
+          if (b.x - b.r < p.x + 2) {
+            // Roll off left edge
+            b.vx = -Math.abs(b.vx);
+          } else if (b.x + b.r > p.x + p.w - 2) {
+            // Roll off right edge
+            b.vx = Math.abs(b.vx);
+          }
+
+          // Speed up slightly with each bounce
+          if (b.bounces < 5) {
+            var speed = Math.abs(b.vx);
+            speed = Math.min(speed + 0.3, 5);
+            b.vx = (b.vx > 0 ? 1 : -1) * speed;
+            b.bounces++;
+          }
+        }
+      }
+    }
+
+    // Remove barrels that fall off screen
+    if (b.y > H + 50 || b.x < -50 || b.x > W + 50) {
+      barrels.splice(i, 1);
+      continue;
+    }
+
+    // Check collision with player
+    if (player.invincible <= 0) {
+      var dx = (player.x + player.w / 2) - b.x;
+      var dy = (player.y + player.h / 2) - b.y;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < b.r + player.w / 2) {
+        playerDie();
+      }
+    }
+  }
+}
+
+// ─── Drawing ──────────────────────────────────────────────
+
+function drawGirder(x, y, w, h) {
+  // Main girder body
+  ctx.fillStyle = '#5a5a6a';
+  ctx.fillRect(x, y, w, h);
+
+  // Top highlight
+  ctx.fillStyle = '#7a7a8a';
+  ctx.fillRect(x, y, w, 3);
+
+  // Cross-hatch pattern
+  ctx.strokeStyle = '#4a4a5a';
+  ctx.lineWidth = 1;
+  for (var i = x; i < x + w; i += 16) {
+    ctx.beginPath();
+    ctx.moveTo(i, y);
+    ctx.lineTo(i, y + h);
+    ctx.stroke();
+  }
+  for (var j = y; j < y + h; j += 8) {
+    ctx.beginPath();
+    ctx.moveTo(x, j);
+    ctx.lineTo(x + w, j);
+    ctx.stroke();
+  }
+
+  // Rivets
+  ctx.fillStyle = '#8a8a9a';
+  for (var rx = x + 8; rx < x + w - 4; rx += 24) {
+    ctx.beginPath();
+    ctx.arc(rx, y + h / 2, 3, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawLadder(l) {
+  var x = l.x - 6, y = l.y1, h = l.y2 - l.y1;
+  // Rails
+  ctx.fillStyle = '#c8a84a';
+  ctx.fillRect(x, y, 3, h);
+  ctx.fillRect(x + 9, y, 3, h);
+  // Rungs
+  for (var r = y + 10; r < y + h - 5; r += 14) {
+    ctx.fillStyle = '#dbb85a';
+    ctx.fillRect(x, r, 12, 3);
+  }
+}
+
+function drawPlayer() {
+  if (player.invincible > 0 && Math.floor(player.invincible / 4) % 2 === 0) return;
+
+  var px = Math.round(player.x);
+  var py = Math.round(player.y);
+  var f = player.facing;
+
+  if (player.climbing) {
+    // Climbing sprite
+    // Hat (red cap)
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(px + 2, py, 16, 6);
+    ctx.fillRect(px + 4, py - 2, 12, 4);
+    // Face
+    ctx.fillStyle = '#f0c8a0';
+    ctx.fillRect(px + 3, py + 5, 14, 9);
+    // Eyes
+    ctx.fillStyle = '#222';
+    if (f > 0) {
+      ctx.fillRect(px + 13, py + 7, 3, 3);
+    } else {
+      ctx.fillRect(px + 4, py + 7, 3, 3);
+    }
+    // Body (red shirt)
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(px + 3, py + 14, 14, 8);
+    // Legs (blue)
+    ctx.fillStyle = '#2980b9';
+    var legAnim = Math.floor(player.frame) % 2;
+    ctx.fillRect(px + 3, py + 22, 6, 6);
+    ctx.fillRect(px + 11, py + 22, 6, 6);
+  } else if (!player.onGround) {
+    // Jumping sprite
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(px + 2, py, 16, 6);
+    ctx.fillRect(px + 4, py - 2, 12, 4);
+    ctx.fillStyle = '#f0c8a0';
+    ctx.fillRect(px + 3, py + 5, 14, 9);
+    ctx.fillStyle = '#222';
+    if (f > 0) ctx.fillRect(px + 13, py + 7, 3, 3);
+    else ctx.fillRect(px + 4, py + 7, 3, 3);
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(px + 3, py + 14, 14, 8);
+    // Legs spread (jumping pose)
+    ctx.fillStyle = '#2980b9';
+    ctx.fillRect(px - 1, py + 22, 7, 6);
+    ctx.fillRect(px + 14, py + 22, 7, 6);
+  } else if (player.vx !== 0) {
+    // Walking
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(px + 2, py, 16, 6);
+    ctx.fillRect(px + 4, py - 2, 12, 4);
+    ctx.fillStyle = '#f0c8a0';
+    ctx.fillRect(px + 3, py + 5, 14, 9);
+    ctx.fillStyle = '#222';
+    if (f > 0) ctx.fillRect(px + 13, py + 7, 3, 3);
+    else ctx.fillRect(px + 4, py + 7, 3, 3);
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(px + 3, py + 14, 14, 8);
+    ctx.fillStyle = '#2980b9';
+    var step = Math.floor(player.frame) % 2 === 0 ? 1 : -1;
+    ctx.fillRect(px + 3, py + 22, 6, 6);
+    ctx.fillRect(px + 11 + step * 2, py + 22, 6, 6);
+  } else {
+    // Standing idle
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(px + 2, py, 16, 6);
+    ctx.fillRect(px + 4, py - 2, 12, 4);
+    ctx.fillStyle = '#f0c8a0';
+    ctx.fillRect(px + 3, py + 5, 14, 9);
+    ctx.fillStyle = '#222';
+    if (f > 0) ctx.fillRect(px + 13, py + 7, 3, 3);
+    else ctx.fillRect(px + 4, py + 7, 3, 3);
+    ctx.fillStyle = '#e74c3c';
+    ctx.fillRect(px + 3, py + 14, 14, 8);
+    ctx.fillStyle = '#2980b9';
+    ctx.fillRect(px + 3, py + 22, 6, 6);
+    ctx.fillRect(px + 11, py + 22, 6, 6);
+  }
+}
+
+function drawDK() {
+  // Donkey Kong at top platform
+  var dx = dk.x, dy = dk.y;
+  // Body (brown)
+  ctx.fillStyle = '#6b3a1f';
+  ctx.fillRect(dx, dy, 40, 30);
+  // Belly (lighter)
+  ctx.fillStyle = '#8b5a2f';
+  ctx.fillRect(dx + 8, dy + 10, 24, 16);
+  // Head
+  ctx.fillStyle = '#6b3a1f';
+  ctx.fillRect(dx + 4, dy - 18, 32, 22);
+  // Face
+  ctx.fillStyle = '#8b5a2f';
+  ctx.fillRect(dx + 8, dy - 14, 24, 14);
+  // Eyes (white with black pupil)
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(dx + 10, dy - 10, 8, 6);
+  ctx.fillRect(dx + 22, dy - 10, 8, 6);
+  ctx.fillStyle = '#222';
+  ctx.fillRect(dx + 12, dy - 9, 4, 4);
+  ctx.fillRect(dx + 24, dy - 9, 4, 4);
+  // Mouth
+  ctx.fillStyle = '#222';
+  ctx.fillRect(dx + 14, dy - 2, 12, 3);
+  // "DK" tie
+  ctx.fillStyle = '#c0392b';
+  ctx.fillRect(dx + 16, dy + 8, 8, 6);
+  // Arms (throwing animation)
+  var armY = dk.animTimer > 5 ? -4 : 0;
+  ctx.fillStyle = '#6b3a1f';
+  ctx.fillRect(dx - 6, dy + 6 + armY, 8, 6);
+  ctx.fillRect(dx + 38, dy + 6, 8, 6);
+  // Feet
+  ctx.fillStyle = '#4a2a0f';
+  ctx.fillRect(dx + 2, dy + 28, 14, 6);
+  ctx.fillRect(dx + 24, dy + 28, 14, 6);
+}
+
+function drawBarrel(b) {
+  var bx = Math.round(b.x), by = Math.round(b.y);
+  // Barrel body
+  ctx.fillStyle = '#a0522d';
+  ctx.beginPath();
+  ctx.arc(bx, by, b.r, 0, Math.PI * 2);
+  ctx.fill();
+  // Band
+  ctx.strokeStyle = '#6b3a1f';
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.arc(bx, by, b.r - 2, 0, Math.PI * 2);
+  ctx.stroke();
+  // Inner band
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.arc(bx, by, b.r - 5, 0, Math.PI * 2);
+  ctx.stroke();
+  // Cross lines (wood planks)
+  ctx.strokeStyle = '#6b3a1f';
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.moveTo(bx - b.r + 4, by);
+  ctx.lineTo(bx + b.r - 4, by);
+  ctx.stroke();
+  // Rolling marks
+  ctx.fillStyle = '#8b4513';
+  var dots = b.anim * 60;
+  for (var d = 0; d < 6; d++) {
+    var angle = dots + d * Math.PI / 3;
+    var dx2 = Math.cos(angle) * (b.r - 4);
+    var dy2 = Math.sin(angle) * (b.r - 4);
+    ctx.fillRect(bx + dx2 - 1, by + dy2 - 1, 2, 2);
+  }
+}
+
+function drawBackground() {
+  // Sky / background gradient
+  var grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#1a1a3a');
+  grad.addColorStop(1, '#0a0a1a');
+  ctx.fillStyle = grad;
+  ctx.fillRect(0, 0, W, H);
+
+  // Stars
+  ctx.fillStyle = 'rgba(255,255,255,0.3)';
+  var seed = 12345;
+  for (var s = 0; s < 30; s++) {
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    var sx = seed % W;
+    seed = (seed * 1103515245 + 12345) & 0x7fffffff;
+    var sy = seed % (H - 200);
+    ctx.fillRect(sx, sy, 2, 2);
+  }
+
+  // Building / structural background lines
+  ctx.strokeStyle = 'rgba(40,40,60,0.5)';
+  ctx.lineWidth = 1;
+  for (var bx = 0; bx < W; bx += 40) {
+    ctx.beginPath();
+    ctx.moveTo(bx, 0);
+    ctx.lineTo(bx, H);
+    ctx.stroke();
+  }
+}
+
+function drawHUD() {
+  ctx.fillStyle = '#fff';
+  ctx.font = '14px monospace';
+  ctx.textAlign = 'left';
+  ctx.fillText('SCORE: ' + game.score, 16, 24);
+  ctx.textAlign = 'right';
+  ctx.fillText('LIVES: ' + '♥'.repeat(Math.max(0, game.lives)), W - 16, 24);
+  ctx.textAlign = 'center';
+  ctx.fillText('LEVEL ' + game.level, W / 2, 24);
+}
+
+function drawGameOver() {
+  ctx.fillStyle = 'rgba(0,0,0,0.7)';
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = '#e74c3c';
+  ctx.font = 'bold 48px "Courier New",monospace';
+  ctx.textAlign = 'center';
+  ctx.fillText('GAME OVER', W/2, H/2 - 20);
+  ctx.fillStyle = '#f1c40f';
+  ctx.font = '24px "Courier New",monospace';
+  ctx.fillText('Score: ' + game.score, W/2, H/2 + 30);
+  ctx.fillStyle = '#aaa';
+  ctx.font = '16px monospace';
+  ctx.fillText('Click to restart', W/2, H/2 + 80);
+}
+
+// ─── Main game loop ───────────────────────────────────────
+
+function gameLoop() {
+  if (game.state === 'playing') {
+    updatePlayer();
+    updateBarrels();
+  }
+
+  render();
+  requestAnimationFrame(gameLoop);
+}
+
+function render() {
+  drawBackground();
+
+  // Draw platforms
+  for (var i = 0; i < PLATFORMS.length; i++) {
+    drawGirder(PLATFORMS[i].x, PLATFORMS[i].y, PLATFORMS[i].w, PLATFORMS[i].h);
+  }
+
+  // Draw ladders
+  for (var i = 0; i < LADDERS.length; i++) {
+    drawLadder(LADDERS[i]);
+  }
+
+  // Draw DK
+  drawDK();
+
+  // Draw barrels
+  for (var i = 0; i < barrels.length; i++) {
+    drawBarrel(barrels[i]);
+  }
+
+  // Draw player
+  drawPlayer();
+
+  // HUD
+  drawHUD();
+
+  if (game.state === 'gameover') {
+    drawGameOver();
+  }
+}
+
+// ─── Start / restart ──────────────────────────────────────
+
+var titleScreen = document.getElementById('title-screen');
+titleScreen.addEventListener('click', function() {
+  titleScreen.style.display = 'none';
+  if (game.state === 'gameover' || game.state === 'title') {
+    resetGame();
+  }
+});
+
+// Click anywhere on canvas to restart after game over
+canvas.addEventListener('click', function() {
+  if (game.state === 'gameover') {
+    resetGame();
+  }
+});
+
+// ─── Go ───────────────────────────────────────────────────
+gameLoop();
+</script>
+</body>
+</html>
