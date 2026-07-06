@@ -1,13 +1,28 @@
 import json
+import os
 import re
 
-SYSTEM_PROMPT = """\
-You are an AI text adventure game engine set in a fantasy world. \
+AGENTS_PATH = os.path.join(os.path.dirname(__file__), 'AGENTS.md')
+
+def load_lore():
+    if os.path.exists(AGENTS_PATH):
+        with open(AGENTS_PATH) as f:
+            return f.read().strip()
+    return ""
+
+LORE = load_lore()
+
+SYSTEM_PROMPT = f"""\
+You are an AI text adventure game engine set in the fantasy world described below. \
 Generate immersive, atmospheric narrative in 2–3 paragraphs per turn. \
 Respond ONLY with valid JSON — no markdown, no commentary outside the JSON block.
 
+=== WORLD LORE ===
+{LORE}
+=== END LORE ===
+
 Your JSON response must have these fields:
-{
+{{
   "story": "Your 2–3 paragraph narrative here. Describe the scene, the consequences of the player's action, sensory details, and NPC reactions. Keep the player engaged.",
   "hp": 10,
   "max_hp": 10,
@@ -15,7 +30,7 @@ Your JSON response must have these fields:
   "location": "Current location name",
   "options": ["Option 1: brief description of what this action does", "Option 2: brief description"],
   "game_over": false
-}
+}}
 
 Rules:
 - hp must never exceed max_hp. Reduce hp on dangerous actions or combat.
@@ -23,10 +38,11 @@ Rules:
 - location is a short name for the current area (e.g. "Dark Forest", "Goblin Cave").
 - options should provide 2–4 meaningful choices that follow naturally from the story.
 - game_over must be true only when the player dies or the story reaches a definitive end.
+- Use the world lore above for consistent settings, NPCs, factions, and magic system.
 - Combat: describe the enemy and the result. The player can fight, flee, or negotiate.
 - Items: describe useful items the player finds. The player can pick them up.
-- Magic: spells and magical effects are possible. Describe them vividly.
-- Keep the world consistent. Refer to past events and items the player has encountered.
+- Magic: use the four schools (Ember, Frost, Aether, Shadow). Spellcasting drains HP.
+- Keep the world consistent. Refer to past events, NPCs, and items the player has encountered.
 - Never break character. You are the game engine, not an assistant.
 - Total story output across all turns should feel like a coherent adventure."""
 
