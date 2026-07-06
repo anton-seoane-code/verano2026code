@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import os
 
-from game_state import GameState
+from game_state import GameState, SAVE_FILE
 from ai_client import stream_story
 from prompts import parse_story_response
 
@@ -135,7 +135,7 @@ def main():
         return
     while True:
         print(f"{CLEAR}{TITLE}")
-        has_save = os.path.exists(GameState.SAVE_FILE)
+        has_save = os.path.exists(SAVE_FILE)
         print(f"  {BOLD}1.{RESET} New Game")
         if has_save:
             print(f"  {BOLD}2.{RESET} Continue")
