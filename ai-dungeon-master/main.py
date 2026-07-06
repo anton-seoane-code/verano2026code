@@ -3,7 +3,7 @@ import os
 
 from game_state import GameState, SAVE_FILE
 from ai_client import stream_story
-from prompts import parse_story_response
+from prompts import parse_story_response, RETRY_PROMPT, DEFAULTS
 
 GREEN = '\033[92m'
 YELLOW = '\033[93m'
@@ -63,18 +63,33 @@ def ask_api(messages):
         print(f"\n{RED}The magical connection falters: {e}{RESET}")
         return None
 
+def fetch_and_parse(messages):
+    raw = ask_api(messages)
+    if raw is None:
+        return None
+    data = parse_story_response(raw)
+    story = data.get('story', '')
+    if not story or story == DEFAULTS['story']:
+        print(f"\n{YELLOW}The DM mumbles incoherently and gathers their thoughts...{RESET}")
+        retry_msgs = messages + [
+            {'role': 'assistant', 'content': raw},
+            {'role': 'user', 'content': RETRY_PROMPT},
+        ]
+        raw2 = ask_api(retry_msgs)
+        if raw2 is None:
+            return None
+        data = parse_story_response(raw2)
+    return data
+
 def new_game():
     state = GameState()
     print(f"{CLEAR}{TITLE}")
     print("The DM is consulting the ancient tomes...\n")
     messages = state.context_messages()
     messages.append({'role': 'user', 'content': "Begin the adventure. Describe where I am and what I see."})
-    raw = ask_api(messages)
-    if raw is None:
-        return None
-    data = parse_story_response(raw)
+    data = fetch_and_parse(messages)
     if data is None:
-        print(f"\n{RED}Failed to parse the DM's response. The ancient magic falters...{RESET}")
+        print(f"\n{RED}The ancient magic fails to respond.{RESET}")
         return None
     state.apply_response(data)
     state.add_turn("Begin the adventure. Describe where I am and what I see.", data)
@@ -97,12 +112,8 @@ def game_loop(state):
         print(f"\n{BOLD}You:{RESET} {action}\n")
         messages = state.context_messages()
         messages.append({'role': 'user', 'content': action})
-        raw = ask_api(messages)
-        if raw is None:
-            continue
-        data = parse_story_response(raw)
+        data = fetch_and_parse(messages)
         if data is None:
-            print(f"\n{RED}The DM's words are incoherent. Let's try again...{RESET}")
             continue
         state.apply_response(data)
         state.add_turn(action, data)

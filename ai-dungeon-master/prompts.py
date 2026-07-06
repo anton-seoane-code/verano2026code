@@ -30,27 +30,86 @@ Rules:
 - Never break character. You are the game engine, not an assistant.
 - Total story output across all turns should feel like a coherent adventure."""
 
+RETRY_PROMPT = """Your previous response was not valid JSON. Respond again with ONLY this exact JSON — no other text, no markdown:
+{"story": "your narrative here", "hp": 10, "max_hp": 10, "inventory": [], "location": "location", "options": ["option 1", "option 2"], "game_over": false}
+Start with '{"story":'."""
+
+DEFAULTS = {
+    'story': 'The adventure continues...',
+    'hp': 10,
+    'max_hp': 10,
+    'inventory': [],
+    'location': 'Unknown',
+    'options': ['Explore your surroundings', 'Look around'],
+    'game_over': False,
+}
+
+def _find_json_braces(text):
+    start = text.find('{')
+    if start == -1:
+        return None
+    depth = 0
+    for i in range(start, len(text)):
+        c = text[i]
+        if c == '{':
+            depth += 1
+        elif c == '}':
+            depth -= 1
+            if depth == 0:
+                return text[start:i + 1]
+    return None
+
+def _try_parse(text):
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+    cleaned = re.sub(r',\s*}', '}', text)
+    cleaned = re.sub(r',\s*\]', ']', cleaned)
+    try:
+        return json.loads(cleaned)
+    except json.JSONDecodeError:
+        pass
+    return None
+
+def _fill_defaults(data):
+    required = ['story', 'hp', 'max_hp', 'inventory', 'location', 'options', 'game_over']
+    result = {}
+    for field in required:
+        val = data.get(field)
+        if val is not None:
+            result[field] = val
+        else:
+            result[field] = DEFAULTS[field]
+    result['hp'] = max(0, min(int(result['hp']), int(result['max_hp'])))
+    result['max_hp'] = int(result['max_hp'])
+    if not isinstance(result['inventory'], list):
+        result['inventory'] = DEFAULTS['inventory']
+    if not isinstance(result['options'], list) or not result['options']:
+        result['options'] = DEFAULTS['options']
+    if not isinstance(result['game_over'], bool):
+        result['game_over'] = False
+    return result
+
 def parse_story_response(text):
     text = text.strip()
-    json_match = re.search(r'\{[\s\S]*\}', text)
-    if json_match:
-        text = json_match.group(0)
-    try:
-        data = json.loads(text)
-    except json.JSONDecodeError:
-        cleaned = re.sub(r',\s*}', '}', text)
-        cleaned = re.sub(r',\s*\]', ']', cleaned)
-        try:
-            data = json.loads(cleaned)
-        except json.JSONDecodeError:
-            return None
-    required = ['story', 'hp', 'max_hp', 'inventory', 'location', 'options', 'game_over']
-    for field in required:
-        if field not in data:
-            return None
-    data['hp'] = max(0, min(data['hp'], data['max_hp']))
-    if not isinstance(data['inventory'], list):
-        data['inventory'] = []
-    if not isinstance(data['options'], list):
-        data['options'] = []
-    return data
+    if not text:
+        return _fill_defaults({})
+
+    code = re.search(r'```(?:json)?\s*\n?([\s\S]*?)```', text)
+    if code:
+        data = _try_parse(code.group(1).strip())
+        if data:
+            return _fill_defaults(data)
+
+    block = _find_json_braces(text)
+    if block:
+        data = _try_parse(block)
+        if data:
+            return _fill_defaults(data)
+
+    data = _try_parse(text)
+    if data:
+        return _fill_defaults(data)
+
+    return _fill_defaults({'story': text})
