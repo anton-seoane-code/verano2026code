@@ -1,4 +1,18 @@
 # Report
+## 06/07
+### Projects:
+- [x] AI Dungeon Master `ai-dungeon-master/`
+  - Text-based fantasy adventure game with AI-generated narrative via DeepSeek API
+  - Real-time story generation: every action produces a unique story segment
+  - Streaming AI responses for immersive word-by-word output
+  - Structured JSON responses parsed into HP, inventory, location, and game state
+  - Context ring buffer (last 8 turns) maintains narrative coherence
+  - Save/load system with auto-save after each turn
+  - Colorful terminal UI: HP bar, location, inventory, numbered option selection
+  - First-run `.env` setup prompt for API key
+  - No hardcoded story — endless replayability
+  - Dependencies: openai, python-dotenv
+
 ## 03/07
 ### Projects:
 - [x] Minecraft (Python/OpenGL) `minecraft/` — Phase A+B: Core Engine + Features
