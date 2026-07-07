@@ -11,7 +11,17 @@
   - Colorful terminal UI: HP bar, location, inventory, numbered option selection
   - First-run `.env` setup prompt for API key
   - No hardcoded story — endless replayability
-  - Dependencies: openai, python-dotenv
+  - Dependencies: requests, python-dotenv
+- [x] Graphical Escape Room `graphical-escape-room/`
+  - Point-and-click escape room built with tkinter (stdlib — no external deps)
+  - 3 rooms with increasing difficulty: The Study (easy), The Laboratory (medium), The Vault (hard)
+  - Canvas-based room view with colored shapes, hover tooltips, pop-up interaction dialogs
+  - Inventory system: collect items, use on objects, combine in chains (flask→water→salt→heat→crystal)
+  - Puzzle types: code-entry safes, item combination, hidden-object reveal, observation clues
+  - Room transitions require solving all puzzles to obtain exit items
+  - Victory screen on completing all rooms
+  - All graphics drawn with tkinter primitives — zero dependencies
+  - Run: `python3 main.py` from `graphical-escape-room/`
 
 ## 03/07
 ### Projects:
