@@ -1,14 +1,10 @@
 #!/usr/bin/env python3
-import tkinter as tk
 from game import Game
-from renderer import Renderer
+from renderer import run
 
 def main():
-    root = tk.Tk()
-    root.geometry("800x640")
     game = Game()
-    renderer = Renderer(root, game)
-    root.mainloop()
+    run(game)
 
 if __name__ == "__main__":
     main()
