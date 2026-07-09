@@ -1,4 +1,14 @@
 # Report
+## 09/07
+### Projects:
+- [x] Advanced Games — Unity Engine `advanced-games-unity/`
+  - Unity 2022.3 LTS / Unity 6 LTS project structure with full MCP integration
+  - `PlayerController.cs`: Rigidbody-based FPS movement (WASD + Space jump), mouse look, configurable speed/jump/air control
+  - MCP for Unity bridge configured (`opencode.json`): remote connection to Unity Editor for AI-assisted development
+  - `AGENTS.md`: detailed setup guide for Unity Hub (AppImage + APT), MCP installation, and project lore
+  - Unity package manager git dependency for `CoplayDev/unity-mcp` bridge package
+  - Ready for scene creation, prefab workflows, and iterative AI-generated C# scripting
+
 ## 07/07
 ### Projects:
 - [x] Graphical Escape Room `graphical-escape-room/`

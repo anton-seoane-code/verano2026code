@@ -1,3 +1,11 @@
 {
-  "plugin": ["superpowers@git+https://github.com/obra/superpowers.git"]
+  "plugin": ["superpowers@git+https://github.com/obra/superpowers.git"],
+  "mcpServers": {
+    "unity3d-mcp": {
+      "type": "remote",
+      "url": "http://127.0.0.1:8000/",
+      "enabled": true,
+      "description": "Unity MCP bridge — allows OpenCode to control Unity Editor, manage assets, edit scenes, and generate C# scripts"
+    }
+  }
 }
