@@ -5,8 +5,21 @@ public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float speed = 8f;
+    public float sprintSpeed = 14f;
+    public float crouchSpeed = 3f;
     public float jumpForce = 5f;
     public float airControlMultiplier = 0.4f;
+
+    [Header("Sprint Settings")]
+    public float maxStamina = 100f;
+    public float staminaDrainRate = 20f;
+    public float staminaRegenRate = 15f;
+    public float minStaminaToSprint = 10f;
+
+    [Header("Crouch Settings")]
+    public float crouchHeight = 0.8f;
+    public float standHeight = 1.8f;
+    public float crouchTransitionSpeed = 8f;
 
     [Header("Camera Settings")]
     public Camera playerCamera;
@@ -22,10 +35,25 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded;
     private Vector3 moveInput;
 
+    private bool isSprinting;
+    private float currentStamina;
+    private bool isCrouching;
+    private float currentHeight;
+    private CapsuleCollider capsule;
+
+    public bool IsSprinting => isSprinting;
+    public bool IsCrouching => isCrouching;
+    public float CurrentStamina => currentStamina;
+    public float MaxStamina => maxStamina;
+    public bool IsGrounded => isGrounded;
+
     void Start()
     {
         rb = GetComponent<Rigidbody>();
         rb.freezeRotation = true;
+        capsule = GetComponent<CapsuleCollider>();
+        currentStamina = maxStamina;
+        currentHeight = standHeight;
 
         if (playerCamera == null)
             playerCamera = Camera.main;
@@ -37,6 +65,10 @@ public class PlayerController : MonoBehaviour
     {
         HandleMouseLook();
         HandleJumpInput();
+        HandleSprintInput();
+        HandleCrouchInput();
+        UpdateStamina();
+        UpdateCrouchHeight();
     }
 
     void FixedUpdate()
@@ -61,8 +93,47 @@ public class PlayerController : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
         {
+            if (isCrouching)
+                ToggleCrouch();
             rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
         }
+    }
+
+    void HandleSprintInput()
+    {
+        bool wantsToSprint = Input.GetKey(KeyCode.LeftShift) && !isCrouching;
+        isSprinting = wantsToSprint && currentStamina > minStaminaToSprint && isGrounded;
+    }
+
+    void HandleCrouchInput()
+    {
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+            ToggleCrouch();
+    }
+
+    void ToggleCrouch()
+    {
+        isCrouching = !isCrouching;
+        if (isCrouching)
+            isSprinting = false;
+    }
+
+    void UpdateStamina()
+    {
+        if (isSprinting)
+            currentStamina -= staminaDrainRate * Time.deltaTime;
+        else
+            currentStamina += staminaRegenRate * Time.deltaTime;
+
+        currentStamina = Mathf.Clamp(currentStamina, 0f, maxStamina);
+    }
+
+    void UpdateCrouchHeight()
+    {
+        float targetHeight = isCrouching ? crouchHeight : standHeight;
+        currentHeight = Mathf.Lerp(currentHeight, targetHeight, crouchTransitionSpeed * Time.deltaTime);
+        capsule.height = currentHeight;
+        capsule.center = new Vector3(0f, currentHeight * 0.5f, 0f);
     }
 
     void HandleMovement()
@@ -77,15 +148,14 @@ public class PlayerController : MonoBehaviour
         forward.Normalize();
         right.Normalize();
 
-        Vector3 targetVelocity = (forward * vertical + right * horizontal).normalized * speed;
+        float currentSpeed = isCrouching ? crouchSpeed : (isSprinting ? sprintSpeed : speed);
+        Vector3 targetVelocity = (forward * vertical + right * horizontal).normalized * currentSpeed;
         targetVelocity.y = rb.linearVelocity.y;
 
         if (!isGrounded)
             targetVelocity *= airControlMultiplier;
 
         Vector3 velocityChange = targetVelocity - rb.linearVelocity;
-        velocityChange.x = velocityChange.x;
-        velocityChange.z = velocityChange.z;
         velocityChange.y = 0f;
 
         rb.AddForce(velocityChange, ForceMode.VelocityChange);
