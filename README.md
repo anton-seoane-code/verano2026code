@@ -9,6 +9,19 @@
   - Unity package manager git dependency for `CoplayDev/unity-mcp` bridge package
   - Ready for scene creation, prefab workflows, and iterative AI-generated C# scripting
 
+## 10/07
+### Projects:
+- [x] Advanced Games — Unity Engine `advanced-games-unity/`
+  - Runtime bootstrap (`GameBootstrap.cs`): creates player, environment, and all managers on Play
+  - `PlayerController.cs`: enhanced FPS controller with sprint (Shift), crouch (Ctrl), stamina system
+  - `InteractionSystem.cs` + `Interactable.cs`: raycast-based interaction with world objects (E key)
+  - `PlayerHUD.cs`: IMGUI crosshair, stamina bar, interaction prompts, discovery counter
+  - `EnvironmentManager.cs`: procedural ancient ruins generation (ground, pillars, walls, trees, altar, fog)
+  - `GameManager.cs` + `AudioManager.cs`: singleton managers with discovery tracking and procedural audio
+  - **Critical fixes**: invisible meshes (CreatePrimitive), infinite jump (ground mask self-exclusion), silent audio (wrong Rigidbody ref)
+  - URP + XR packages, Unity 6 LTS (`6000.5.3f1`), MCP for Unity bridge
+  - AGENTS.md: updated runtime-first architecture, all script references, quick-start guide
+
 ## 07/07
 ### Projects:
 - [x] Graphical Escape Room `graphical-escape-room/`
