@@ -19,6 +19,7 @@ public class AudioManager : MonoBehaviour
     public float ambientVolume = 0.15f;
 
     private PlayerController playerController;
+    private Rigidbody playerRb;
     private float stepTimer;
 
     void Awake()
@@ -29,11 +30,14 @@ public class AudioManager : MonoBehaviour
             return;
         }
         Instance = this;
+        DontDestroyOnLoad(gameObject);
     }
 
     void Start()
     {
         playerController = FindFirstObjectByType<PlayerController>();
+        if (playerController != null)
+            playerRb = playerController.GetComponent<Rigidbody>();
 
         if (ambientSource == null)
         {
@@ -49,25 +53,25 @@ public class AudioManager : MonoBehaviour
             sfxSource.playOnAwake = false;
         }
 
-        if (ambientClip != null)
-        {
-            ambientSource.clip = ambientClip;
-            ambientSource.Play();
-        }
+        if (footstepClips == null || footstepClips.Length == 0)
+            GenerateFootstepClips();
+
+        if (ambientClip == null)
+            GenerateAmbientClip();
+
+        ambientSource.clip = ambientClip;
+        ambientSource.Play();
     }
 
     void Update()
     {
-        if (playerController == null || footstepClips == null || footstepClips.Length == 0)
+        if (playerController == null || playerRb == null || footstepClips == null || footstepClips.Length == 0)
             return;
 
         if (!playerController.IsGrounded)
             return;
 
-        Vector3 vel = GetComponent<Rigidbody>() != null
-            ? GetComponent<Rigidbody>().linearVelocity
-            : Vector3.zero;
-
+        Vector3 vel = playerRb.linearVelocity;
         float horizontalSpeed = new Vector3(vel.x, 0f, vel.z).magnitude;
         if (horizontalSpeed < 0.5f)
         {
@@ -83,6 +87,43 @@ public class AudioManager : MonoBehaviour
             stepTimer = 0f;
             PlayFootstep();
         }
+    }
+
+    void GenerateFootstepClips()
+    {
+        int sampleRate = 44100;
+        float duration = 0.12f;
+        int samples = Mathf.FloorToInt(sampleRate * duration);
+        footstepClips = new AudioClip[3];
+        for (int i = 0; i < 3; i++)
+        {
+            float[] data = new float[samples];
+            for (int j = 0; j < samples; j++)
+            {
+                float t = (float)j / sampleRate;
+                data[j] = Mathf.Sin(2f * Mathf.PI * 200f * t) * Mathf.Exp(-t * 35f);
+                data[j] += (Random.value - 0.5f) * 0.4f * Mathf.Exp(-t * 25f);
+            }
+            var clip = AudioClip.Create($"Footstep_{i}", samples, 1, sampleRate, false);
+            clip.SetData(data, 0);
+            footstepClips[i] = clip;
+        }
+    }
+
+    void GenerateAmbientClip()
+    {
+        int sampleRate = 44100;
+        float duration = 5f;
+        int samples = Mathf.RoundToInt(sampleRate * duration);
+        float[] data = new float[samples];
+        for (int i = 0; i < samples; i++)
+        {
+            float t = (float)i / sampleRate;
+            data[i] = Mathf.Sin(2f * Mathf.PI * 55f * t) * 0.15f;
+            data[i] += Mathf.Sin(2f * Mathf.PI * 85f * t) * 0.08f;
+        }
+        ambientClip = AudioClip.Create("AmbientWind", samples, 1, sampleRate, false);
+        ambientClip.SetData(data, 0);
     }
 
     void PlayFootstep()

@@ -79,9 +79,6 @@ public class EnvironmentManager : MonoBehaviour
         var ground = CreateBlock("Ground", groundSize, 0.5f, groundSize, Vector3.down * 0.25f);
         ground.GetComponent<Renderer>().material = groundMat;
         ground.isStatic = true;
-
-        var groundCollider = ground.AddComponent<BoxCollider>();
-        groundCollider.size = new Vector3(groundSize, 0.5f, groundSize);
     }
 
     void BuildStonePath()
@@ -247,17 +244,17 @@ public class EnvironmentManager : MonoBehaviour
         marker.transform.position = new Vector3(0f, 2f, 0f);
         var interactable = marker.AddComponent<Interactable>();
         interactable.interactionPrompt = "Ancient Altar";
+        if (GameManager.Instance != null)
+            GameManager.Instance.RegisterDiscoverable();
     }
 
     GameObject CreateBlock(string name, float width, float height, float depth, Vector3 position)
     {
-        var obj = new GameObject(name);
+        var obj = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        obj.name = name;
         obj.transform.SetParent(environmentParent.transform);
         obj.transform.position = position;
         obj.transform.localScale = new Vector3(width, height, depth);
-        obj.AddComponent<MeshFilter>();
-        obj.AddComponent<MeshRenderer>();
-        obj.AddComponent<BoxCollider>();
         return obj;
     }
 }

@@ -58,7 +58,8 @@ public class PlayerController : MonoBehaviour
         if (playerCamera == null)
             playerCamera = Camera.main;
 
-        Cursor.lockState = CursorLockMode.Locked;
+        int playerLayer = gameObject.layer;
+        groundMask = ~(1 << playerLayer);
     }
 
     void Update()
@@ -131,7 +132,7 @@ public class PlayerController : MonoBehaviour
     void UpdateCrouchHeight()
     {
         float targetHeight = isCrouching ? crouchHeight : standHeight;
-        currentHeight = Mathf.Lerp(currentHeight, targetHeight, crouchTransitionSpeed * Time.deltaTime);
+        currentHeight = Mathf.MoveTowards(currentHeight, targetHeight, crouchTransitionSpeed * Time.deltaTime);
         capsule.height = currentHeight;
         capsule.center = new Vector3(0f, currentHeight * 0.5f, 0f);
     }

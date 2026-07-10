@@ -3,13 +3,13 @@ using UnityEngine;
 public class Interactable : MonoBehaviour
 {
     public string interactionPrompt = "Interact";
-    public bool requireLineOfSight = true;
-    public bool isHighlighted = true;
 
     public System.Action OnInteracted;
 
     public virtual void Interact(GameObject interactor)
     {
+        if (GameManager.Instance != null)
+            GameManager.Instance.Discover();
         OnInteracted?.Invoke();
         OnInteract(interactor);
     }

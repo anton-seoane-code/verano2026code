@@ -32,7 +32,6 @@ public class GameBootstrap : MonoBehaviour
         player.transform.position = new Vector3(0f, 1.5f, -8f);
 
         var rb = player.AddComponent<Rigidbody>();
-        rb.freezeRotation = true;
         rb.mass = 1f;
         rb.linearDamping = 0f;
         rb.angularDamping = 0.95f;
