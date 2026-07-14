@@ -1,4 +1,9 @@
 # Report
+## 14/07
+### Projects
+- [x] Doom - GenieEngine `doom/`
+- [x] Flappy bird - GenieEngine `flappy-bird/`
+
 ## 09/07
 ### Projects:
 - [x] Advanced Games — Unity Engine `advanced-games-unity/`
