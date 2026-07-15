@@ -1,4 +1,9 @@
 # Report
+## 15/07
+### Projects
+- [x] Doom - GenieEngine `doom/` (fixed)
+- [x] Flappy bird - GenieEngine `flappy-bird/` (fixed)
+
 ## 14/07
 ### Projects
 - [x] Doom - GenieEngine `doom/`
