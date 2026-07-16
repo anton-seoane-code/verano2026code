@@ -1,4 +1,8 @@
 # Report
+## 16/07
+### Projects
+- [x] Doom - Improved with sound effects, visible weapon and bullets, improved enemies and changed spawn intervals.
+
 ## 15/07
 ### Projects
 - [x] Doom - GenieEngine `doom/` (fixed)
