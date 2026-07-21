@@ -14,6 +14,21 @@
   - Controls: Arrow keys / WASD
   - Dependencies: pygame (`pip install -r requirements.txt`)
    - Design doc: `docs/superpowers/specs/2026-07-21-pacman-clone-design.md`
+- [x] Tetris Clone `tetris-clone/`
+  - Classic Tetris recreation with pygame (all graphics via `pygame.draw` primitives)
+  - Standard 10×20 grid with 7 tetrominoes (I/O/T/S/Z/J/L) and SRS rotation with wall kicks
+  - 7-bag randomizer ensures fair piece distribution
+  - Ghost piece shadow showing where the current piece will land
+  - Next piece preview and hold piece (C key)
+  - Persistent scoreboard: top 5 high scores saved to `tetris.high` via pickle
+  - Level progression: speed increases every 10 lines cleared (800ms → 50ms)
+  - Level-up transition screen with "LEVEL N!" overlay
+  - Scoring: 100/300/500/800 pts per 1/2/3/4 lines (× level), soft/hard drop bonuses
+  - Name entry on game over for new high scores
+  - HUD: score, level, lines, next piece, hold piece
+  - Controls: Arrow keys move, ↑/Z rotate, Space hard drop, C hold
+  - Dependencies: pygame (`pip install -r requirements.txt`)
+  - Design doc: `docs/superpowers/specs/2026-07-21-tetris-clone-design.md`
 
 ## 09/07
 ### Projects:
