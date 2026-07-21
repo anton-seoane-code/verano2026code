@@ -1,17 +1,19 @@
 # Report
-## 16/07
-### Projects
-- [x] Doom - Improved with sound effects, visible weapon and bullets, improved enemies and changed spawn intervals.
-
-## 15/07
-### Projects
-- [x] Doom - GenieEngine `doom/` (fixed)
-- [x] Flappy bird - GenieEngine `flappy-bird/` (fixed)
-
-## 14/07
-### Projects
-- [x] Doom - GenieEngine `doom/`
-- [x] Flappy bird - GenieEngine `flappy-bird/`
+## 21/07
+### Projects:
+- [x] Pac-Man Clone `pacman-clone/`
+  - Faithful classic Pac-Man recreation with pygame (all graphics via `pygame.draw` primitives)
+  - 28×31 tile maze with tunnel wrapping and ghost house
+  - 4 distinct ghost AI behaviors: Blinky (chase), Pinky (ambush), Inky (flanking via Blinky vector), Clyde (shy/chase)
+  - Scatter/chase mode cycling: ghosts patrol corners periodically (~7s scatter, ~20s chase)
+  - Power pellets trigger frightened mode: ghosts turn blue, reverse, become edible (200→1600 pts)
+  - Persistent scoreboard: top 5 high scores saved to `pacman.high` via pickle
+  - Level progression: ghost speed +5%/level, shorter power pellet/scatter durations
+  - Extra life at 10,000 pts, 3 lives, death animation, game-over screen with name entry
+  - HUD: score, high score, level, lives indicator
+  - Controls: Arrow keys / WASD
+  - Dependencies: pygame (`pip install -r requirements.txt`)
+   - Design doc: `docs/superpowers/specs/2026-07-21-pacman-clone-design.md`
 
 ## 09/07
 ### Projects:
