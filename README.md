@@ -1,4 +1,19 @@
 # Report
+## 22/07
+### Projects:
+- [x] Fractal Viewer `fractal-viewer/`
+  - Dual-language Mandelbrot & Julia set viewer (Python + C) with real-time zoom/pan
+  - **Python version**: pygame + numpy + numba JIT, escape-time smooth coloring
+  - **C version**: SDL2 + OpenGL texture rendering, pthreads parallelization, AVX2 SIMD inner loop
+  - Mouse wheel zoom centered on cursor, drag-to-pan
+  - M/J toggle between Mandelbrot and Julia sets
+  - Julia mode: mouse movement updates `c` parameter in real-time
+  - Smooth coloring via normalized iteration count through sine-wave gradient palette
+  - Fullscreen toggle (F) and PPM screenshot export (S)
+  - All rendering via pygame Surface blit (Python) or OpenGL texture blitting (C)
+  - Dependencies: python: pygame+numpy+numba; C: SDL2+OpenGL+CMake
+  - Design doc: `docs/superpowers/specs/2026-07-21-fractal-viewer-design.md`
+
 ## 21/07
 ### Projects:
 - [x] Pac-Man Clone `pacman-clone/`
@@ -29,18 +44,6 @@
   - Controls: Arrow keys move, ↑/Z rotate, Space hard drop, C hold
   - Dependencies: pygame (`pip install -r requirements.txt`)
   - Design doc: `docs/superpowers/specs/2026-07-21-tetris-clone-design.md`
-- [x] Fractal Viewer `fractal-viewer/`
-  - Dual-language Mandelbrot & Julia set viewer (Python + C) with real-time zoom/pan
-  - **Python version**: pygame + numpy + numba JIT, escape-time smooth coloring
-  - **C version**: SDL2 + OpenGL texture rendering, pthreads parallelization, AVX2 SIMD inner loop
-  - Mouse wheel zoom centered on cursor, drag-to-pan
-  - M/J toggle between Mandelbrot and Julia sets
-  - Julia mode: mouse movement updates `c` parameter in real-time
-  - Smooth coloring via normalized iteration count through sine-wave gradient palette
-  - Fullscreen toggle (F) and PPM screenshot export (S)
-  - All rendering via pygame Surface blit (Python) or OpenGL texture blitting (C)
-  - Dependencies: python: pygame+numpy+numba; C: SDL2+OpenGL+CMake
-  - Design doc: `docs/superpowers/specs/2026-07-21-fractal-viewer-design.md`
 
 ## 09/07
 ### Projects:
